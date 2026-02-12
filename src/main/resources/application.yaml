@@ -1,0 +1,39 @@
+# 로컬용 application.yml
+
+spring:
+  application:
+    name: pocketco
+  # .env 파일 인식하게끔
+  config:
+    import: optional:file:.env[.properties]
+  # mysql
+  datasource:
+    url: jdbc:mysql://localhost:3306/pocketco?useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # jpa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    format_sql: true
+
+# jwt
+jwt:
+  secret: ${JWT_SECRET}                  # 필수(반드시 환경변수로만)
+
+# Swagger config
+springdoc:
+  packages-to-scan: com.pocketco
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
