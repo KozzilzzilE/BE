@@ -27,19 +27,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(cs -> cs.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource)) //  CORS 설정 추가
-                .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 미사용
+        http
+                .csrf(csrf -> csrf.disable()) // 테스트를 위해 CSRF는 꺼둡니다.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auths/signup", "/api/v1/auths/login",
-                                "/swagger-ui/**", "/v3/api-docs/**" // swagger 요청 허용
-                        ).permitAll()
+                        // 👇 주소를 명세서에 맞게 v1/auths로 업데이트 하세요!
+                        .requestMatchers("/api/v1/auths/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
