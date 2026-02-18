@@ -22,27 +22,30 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtFilter;
+    private final JwtAuthenticationFilter jwtFilter; // 하은님이 만든 보안 요원
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(cs -> cs.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource)) //  CORS 설정 추가
-                .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 미사용
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auths/signup", "/api/v1/auths/login",
-                                "/swagger-ui/**", "/v3/api-docs/**" // swagger 요청 허용
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                );
+        http
+                .csrf(csrf -> csrf.disable()) // CSRF 꺼두기
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // CORS 연결
 
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                // 1. JWT를 사용하니까 서버가 세션을 기억하지 않게 설정 (매우 중요!)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .authorizeHttpRequests(auth -> auth
+                        // 2. 로그인, 회원가입, 스웨거는 하이패스!
+                        .requestMatchers("/api/v1/auths/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // 3. 나머지는 무조건 '신분증(JWT)' 검사!
+                        .anyRequest().authenticated()
+                )
+
+                // 🛡️ 4. 하은님이 만든 JWT 필터를 보안 검사기(UsernamePasswordAuthenticationFilter) 앞에 배치!
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
