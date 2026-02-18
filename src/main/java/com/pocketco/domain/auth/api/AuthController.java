@@ -1,6 +1,6 @@
 package com.pocketco.domain.auth.api;
 
-import com.pocketco.domain.auth.application.AuthService;
+import com.pocketco.domain.auth.application.AuthServiceImpl;
 import com.pocketco.domain.auth.dto.LoginResponse;
 import com.pocketco.domain.auth.dto.SignupRequest;
 import com.pocketco.domain.auth.dto.SignupResponse;
@@ -9,13 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.pocketco.domain.auth.dto.LoginRequest;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/v1/auths")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
+    private final AuthServiceImpl authService;
 
     @PostMapping("/signup")
     public ApiResponse<SignupResponse> signup(@RequestBody SignupRequest request) {

@@ -27,4 +27,6 @@ public class User extends BaseEntity {
     private String firebaseUid;
 
     // 나중에 언어나 역할(Role) 필드가 필요하면 여기에 추가
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }
