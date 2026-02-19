@@ -12,10 +12,16 @@ public enum SuccessStatus implements BaseCode {
     _OK(HttpStatus.OK, "COMMON200", "성공입니다."),
     _CREATED(HttpStatus.CREATED, "COMMON201", "요청 성공 및 리소스 생성됨"),
 
+    // auth
+    AUTH_REGISTER_SUCCESS(HttpStatus.OK, "AUTH_300", "회원가입 성공했습니다."),
+    AUTH_LOGIN_SUCCESS(HttpStatus.OK, "AUTH_301", "로컬 로그인 성공했습니다."),
+
     // user
-    USER_REGISTER_LOCAL_SUCCESS(HttpStatus.OK, "USER_300", "로컬 회원가입 성공했습니다."),
-    USER_PROFILE_SUCCESS(HttpStatus.OK, "USER_301", "로그인한 유저 조회 성공했습니다."),
-    USER_LOGIN_LOCAL_SUCCESS(HttpStatus.OK, "USER_302", "로컬 로그인 성공했습니다."),
+    USER_PROFILE_SUCCESS(HttpStatus.OK, "USER_300", "로그인한 유저 조회 성공했습니다."),
+
+    // admin
+    ADMIN_ADD_LANGUAGE_SUCCESS(HttpStatus.OK, "ADMIN_300", "언어 추가 성공했습니다."),
+    ADMIN_ADD_TOPIC_SUCCESS(HttpStatus.OK, "ADMIN_301", "알고리즘 주제 추가 성공했습니다.")
 
 
     // token

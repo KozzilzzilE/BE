@@ -1,6 +1,7 @@
 package com.pocketco.domain.user.entity;
 
 import com.pocketco.domain.baseEntity.BaseEntity;
+import com.pocketco.domain.language.entity.Language;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +27,10 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String firebaseUid;
 
-    // 나중에 언어나 역할(Role) 필드가 필요하면 여기에 추가
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "language_id", nullable = false)
+    private Language language;
 }
