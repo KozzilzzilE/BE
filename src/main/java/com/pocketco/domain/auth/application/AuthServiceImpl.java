@@ -3,9 +3,13 @@ package com.pocketco.domain.auth.application;
 import com.pocketco.domain.auth.dto.LoginResponse;
 import com.pocketco.domain.auth.dto.SignupRequest;
 import com.pocketco.domain.auth.dto.SignupResponse;
+import com.pocketco.domain.auth.exception.AuthAlreadyUsedException;
+import com.pocketco.domain.language.application.LanguageService;
+import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.user.entity.Role;
 import com.pocketco.domain.user.entity.User;
 import com.pocketco.domain.user.entity.UserGoal;
+import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.UserRepository;
 import com.pocketco.domain.user.repository.UserGoalRepository;
 import com.pocketco.global.util.jwt.JwtTokenProvider; // 패키지 경로는 하은님 프로젝트에 맞춰 확인해주세요!
@@ -23,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final UserGoalRepository userGoalRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final LanguageService languageService;
 
     /**
      * 회원가입 로직: 유저 정보와 초기 목표를 함께 저장
@@ -30,11 +35,19 @@ public class AuthServiceImpl implements AuthService {
     public SignupResponse register(SignupRequest request) {
         String firebaseUid = verifyFirebaseToken(request.firebaseToken());
 
+        // 해당 파이어베이스 uid 로 이미 가입된 유저는 예외처리
+        if (userRepository.existsByFirebaseUid(firebaseUid)) {
+            throw new AuthAlreadyUsedException();
+        }
+
+        Language language = languageService.findLanguageId(request.language());
+
         User user = User.builder()
                 .email(request.email())
                 .nickname(request.nickname())
                 .firebaseUid(firebaseUid) // 진짜 구글 신분증 번호 저장!
                 .role(Role.USER)
+                .language(language)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -54,6 +67,7 @@ public class AuthServiceImpl implements AuthService {
                 .userId(savedUser.getId())
                 .email(savedUser.getEmail())
                 .nickname(savedUser.getNickname())
+                .language(language.getName())
                 .build();
     }
 
@@ -63,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(String token) {
         String firebaseUid = verifyFirebaseToken(token);
         User user = userRepository.findByFirebaseUid(firebaseUid)
-                .orElseThrow(() -> new RuntimeException("가입되지 않은 유저입니다."));
+                .orElseThrow(() -> new UserNotFoundException());
 
         String accessToken = jwtTokenProvider.createAccessToken(
                 user.getId(),
@@ -74,9 +88,10 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .nickname(user.getNickname())
-                .language("JAVA")
+                .language(user.getLanguage().getName())
                 .build();
     }
+
     private String verifyFirebaseToken(String token) {
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
