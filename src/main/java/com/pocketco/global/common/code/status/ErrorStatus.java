@@ -16,6 +16,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
+    _INVALID_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "DB 제약 조건 위반입니다."),
 
     // --- ADMIN ---
     ADMIN_IS_NOT(HttpStatus.UNAUTHORIZED, "ADMIN_400", "관리자 권한이 없습니다."),
@@ -32,7 +33,15 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // --- Topic ---
     TOPIC_ALREADY_USED(HttpStatus.BAD_REQUEST, "TOPIC_400", "이미 추가한 알고리즘 입니다"),
-    TOPIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "TOPIC_401", "선택할 수 없는 알고리즘 입니다")
+    TOPIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "TOPIC_401", "선택할 수 없는 알고리즘 입니다"),
+
+    // --- Learning Notion ---
+    LEARNING_NOTION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "NOTION_400", "해당 알고리즘의 해당 개념 페이지는 이미 존재 합니다"),
+    LEARNING_NOTION_CODE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "NOTION_401", "해당 페이지에 해당 언어의 예제 코드는 이미 존재 합니다"),
+
+    // --- Learning Applied Exercise ---
+    LEARNING_APPLIED_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "APPLIED_400", "해당 알고리즘의 해당 응용 페이지는 이미 존재 합니다"),
+    LEARNING_APPLIED_CODE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "APPLIED_401", "해당 페이지에 해당 언어의 코드는 이미 존재 합니다")
 
 
     ;

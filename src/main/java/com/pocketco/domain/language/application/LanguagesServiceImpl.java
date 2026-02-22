@@ -10,6 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -42,5 +49,18 @@ public class LanguagesServiceImpl implements LanguageService {
         return AddLanguageResponse.builder()
                 .languagesId(saved.getId())
                 .build();
+    }
+
+    @Override
+    public Map<Long, Language> validateAndGetLanguageMap(List<Long> languageIds) {
+        Set<Long> unique = new HashSet<>(languageIds);
+        List<Language> languages = languageRepository.findAllById(unique);
+
+        if (unique.size() != languageIds.size() || languages.size() != unique.size()) {
+            throw new LanguageNotFoundException();
+        }
+
+        return languages.stream()
+                .collect(Collectors.toMap(Language::getId, Function.identity()));
     }
 }

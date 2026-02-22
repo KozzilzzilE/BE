@@ -6,6 +6,7 @@ import com.pocketco.global.common.response.BaseResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -70,6 +71,41 @@ public class GlobalExceptionAdvice {
         );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<BaseResponse<Void>> handleDataIntegrity(DataIntegrityViolationException e,
+                                                                  HttpServletRequest request) {
+
+        if (isUniqueConstraintViolation(e, "uk_notion_topic_page")) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT) // 또는 BAD_REQUEST
+                    .body(BaseResponse.onFailure(ErrorStatus.LEARNING_NOTION_ALREADY_EXISTS, request.getRequestURI()));
+        }
+        if (isUniqueConstraintViolation(e, "uk_applied_topic_order")) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT) // 또는 BAD_REQUEST
+                    .body(BaseResponse.onFailure(ErrorStatus.LEARNING_APPLIED_ALREADY_EXISTS, request.getRequestURI()));
+        }
+
+        // 그 외는 일반 무결성 에러로 처리
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(BaseResponse.onFailure(ErrorStatus._INVALID_REQUEST, request.getRequestURI()));
+    }
+
+    // DB 제약조건 이름 확인하는 메서드
+    private boolean isUniqueConstraintViolation(DataIntegrityViolationException e, String constraintName) {
+        Throwable cause = e.getCause();
+        while (cause != null) {
+            // Hibernate ConstraintViolationException에 제약 이름이 들어있는 경우가 많음
+            if (cause instanceof org.hibernate.exception.ConstraintViolationException cve) {
+                String name = cve.getConstraintName();
+                return name != null && name.equalsIgnoreCase(constraintName);
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
 
