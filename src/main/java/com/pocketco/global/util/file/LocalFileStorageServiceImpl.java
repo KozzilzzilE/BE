@@ -15,8 +15,11 @@ import java.util.UUID;
 @Profile("local")
 @Service
 public class LocalFileStorageServiceImpl implements FileStorageService {
-    @Value("${storage.local.base-dir")
+    @Value("${storage.local.base-dir}")
     private String baseDir;
+
+    @Value("${app.public-base-url:http://localhost:8080}")
+    private String publicBaseUrl;
 
     private Path resolveBaseDir() {
         Path base = Paths.get(baseDir);
@@ -28,21 +31,22 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public String save(MultipartFile file, String path) throws IOException {
+    public String save(MultipartFile file, String dir) throws IOException {
         Path base = resolveBaseDir();
-        Path folder = base.resolve(path);
+        Path folder = base.resolve(dir);
         Files.createDirectories(folder);
 
         String ext = Optional.ofNullable(file.getOriginalFilename())
                 .filter(fn -> fn.contains("."))
                 .map(fn -> fn.substring(fn.lastIndexOf(".")))
                 .orElse("");
-        String fileName = UUID.randomUUID().toString() + ext;
+        String filename = UUID.randomUUID() + ext;
 
-        Path target = folder.resolve(fileName);
+        Path target = folder.resolve(filename);
         try (var in = file.getInputStream()) {
             Files.copy(in, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         }
-        return "/static/" + path + "/" + fileName;
+        // /static/** 로 노출되도록 매핑
+        return publicBaseUrl + "/static/" + dir + "/" + filename;
     }
 }
