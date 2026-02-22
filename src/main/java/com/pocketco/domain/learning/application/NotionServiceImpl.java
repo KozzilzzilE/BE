@@ -5,7 +5,7 @@ import com.pocketco.domain.admin.dto.AddNotionRequest;
 import com.pocketco.domain.admin.dto.AddNotionResponse;
 import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
-import com.pocketco.domain.learning.converter.NotionConverter;
+import com.pocketco.domain.admin.converter.AdminConverter;
 import com.pocketco.domain.learning.entity.notion.Notion;
 import com.pocketco.domain.learning.entity.notion.NotionCode;
 import com.pocketco.domain.learning.exception.AlreadyExistsNotionPageException;
@@ -73,6 +73,6 @@ public class NotionServiceImpl implements NotionService {
 
         notionCodeRepository.saveAll(codes);
 
-        return NotionConverter.toAddNotionResponse(savedNotion, req.codes().size());
+        return AdminConverter.toAddNotionResponse(savedNotion, req.codes().size());
     }
 }

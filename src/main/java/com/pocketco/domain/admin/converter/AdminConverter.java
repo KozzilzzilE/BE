@@ -1,4 +1,4 @@
-package com.pocketco.domain.learning.converter;
+package com.pocketco.domain.admin.converter;
 
 import com.pocketco.domain.admin.dto.AddNotionResponse;
 import com.pocketco.domain.learning.entity.notion.Notion;
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NotionConverter {
+public class AdminConverter {
     private static String publicBaseUrl;
 
     @Value("${app.public-base-url}")
