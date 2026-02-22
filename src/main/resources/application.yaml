@@ -1,6 +1,8 @@
 # 로컬용 application.yml
 
 spring:
+  profiles:
+    active: local
   application:
     name: pocketco
   # .env 파일 인식하게끔
@@ -37,6 +39,13 @@ springdoc:
     disable-swagger-default-url: true
     display-request-duration: true
     operations-sorter: alpha
+
+storage:
+  local:
+    base-dir: pocketco/uploads
+
+app:
+  public-base-url: http://localhost:8080
 
 # fire base
 firebase:
