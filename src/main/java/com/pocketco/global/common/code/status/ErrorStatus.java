@@ -41,8 +41,10 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // --- Learning Applied Exercise ---
     LEARNING_APPLIED_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "APPLIED_400", "해당 알고리즘의 해당 응용 페이지는 이미 존재 합니다"),
-    LEARNING_APPLIED_CODE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "APPLIED_401", "해당 페이지에 해당 언어의 코드는 이미 존재 합니다")
+    LEARNING_APPLIED_CODE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "APPLIED_401", "해당 페이지에 해당 언어의 코드는 이미 존재 합니다"),
 
+    // --- main screen ---
+    USER_MAIN_INFO_FAIL(HttpStatus.BAD_REQUEST, "USER_400", "메인 화면 정보를 불러오는 데 실패했습니다.")
 
     ;
 
