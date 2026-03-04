@@ -20,9 +20,11 @@ public class TestCase extends BaseEntity {
     @JoinColumn(name = "problem_id", nullable = false)
     private Problem problem;
 
-    @Column(nullable = false)
+    @Lob
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String input;
 
-    @Column(nullable = false)
+    @Lob
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String output;
 }

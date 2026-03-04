@@ -38,10 +38,11 @@ public class Problem extends BaseEntity {
     @Column(name = "constraints", columnDefinition = "TEXT", nullable = false)
     private String constraints;
 
-    @Column(name = "line_solution")
+    @Lob
+    @Column(name = "line_solution", columnDefinition = "TEXT",nullable = false)
     private String lineSolution;
 
     @Lob
-    @Column(name = "solution_text", columnDefinition = "TEXT")
+    @Column(name = "solution_text", columnDefinition = "TEXT",nullable = false)
     private String solutionText;
 }
