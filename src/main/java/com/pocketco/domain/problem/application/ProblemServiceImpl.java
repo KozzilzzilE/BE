@@ -36,7 +36,6 @@ public class ProblemServiceImpl implements ProblemService {
     private AddProblemResponse saveOne(AddProblemRequest req) {
         // 1. [중복 체크] 저장하기 전에 제목이 이미 있는지 확인!
         if (problemRepository.existsByTitle(req.title())) {
-            // GeneralException 대신 ProblemHandler를 던집니다!
             throw new ProblemHandler(ErrorStatus.PROBLEM_ALREADY_EXISTS);
         }
 
@@ -58,7 +57,6 @@ public class ProblemServiceImpl implements ProblemService {
 
         Problem saved = problemRepository.save(problem);
 
-        // ... (이하 테스트케이스, 솔루션 코드 저장 로직은 그대로 두시면 됩니다)
 
         // 4. 테스트케이스 일괄 저장
         List<TestCase> testCases = req.testCases().stream()
