@@ -11,4 +11,6 @@ public interface AdminService {
     AddTopicResponse addTopic(Long userId, AddTopicRequest request);
     AddNotionResponse addNotion(Long userId, MultipartFile image, AddNotionRequest request) throws IOException;
     List<AddAppliedResponse> addApplied(Long userId, List<AddAppliedRequest> request);
+    List<AddProblemResponse> addProblems(Long userId, List<AddProblemRequest> requests);
+
 }

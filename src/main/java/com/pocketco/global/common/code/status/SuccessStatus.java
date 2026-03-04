@@ -23,7 +23,13 @@ public enum SuccessStatus implements BaseCode {
     ADMIN_ADD_LANGUAGE_SUCCESS(HttpStatus.OK, "ADMIN_300", "언어 추가 성공했습니다."),
     ADMIN_ADD_TOPIC_SUCCESS(HttpStatus.OK, "ADMIN_301", "알고리즘 주제 추가 성공했습니다."),
     ADMIN_ADD_NOTION_SUCCESS(HttpStatus.OK, "ADMIN_302", "개념 학습 페이지 추가 성공했습니다."),
-    ADMIN_ADD_APPLIED_EXERCISE_SUCCESS(HttpStatus.OK, "ADMIN_303", "응용 학습 추가 성공했습니다.")
+    ADMIN_ADD_APPLIED_EXERCISE_SUCCESS(HttpStatus.OK, "ADMIN_303", "응용 학습 추가 성공했습니다."),
+
+    // mainscreen
+    USER_MAIN_SUCCESS(HttpStatus.OK, "USER_200", "메인 화면 정보 조회 성공했습니다."),
+
+    // SuccessStatus.java
+    ADMIN_ADD_PROBLEM_SUCCESS(HttpStatus.OK, "ADMIN_204", "코딩 문제 추가 성공했습니다."),
 
 
     // token

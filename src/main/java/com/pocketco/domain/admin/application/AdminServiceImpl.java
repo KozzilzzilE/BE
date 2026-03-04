@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.pocketco.domain.problem.application.ProblemService;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,6 +28,7 @@ public class AdminServiceImpl implements AdminService {
     private final TopicService topicService;
     private final NotionService notionService;
     private final AppliedService appliedService;
+    private final ProblemService problemService;
 
     private void validateAdmin(Long userId) {
         User me = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -58,5 +60,10 @@ public class AdminServiceImpl implements AdminService {
     public List<AddAppliedResponse> addApplied(Long userId, List<AddAppliedRequest> requests) {
         validateAdmin(userId);
         return appliedService.addApplied(requests);
+    }
+    @Override
+    public List<AddProblemResponse> addProblems(Long userId, List<AddProblemRequest> requests) {
+        validateAdmin(userId); // 관리자 확인 로직 재사용
+        return problemService.addProblems(requests);
     }
 }
