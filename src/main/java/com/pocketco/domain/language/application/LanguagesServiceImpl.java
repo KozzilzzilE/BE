@@ -85,4 +85,10 @@ public class LanguagesServiceImpl implements LanguageService {
                 .languages(list)
                 .build();
     }
+
+    @Override
+    public Long getLanguageId(String languageName) {
+        Language language = languageRepository.findByName(languageName).orElseThrow(LanguageNotFoundException::new);
+        return language.getId();
+    }
 }

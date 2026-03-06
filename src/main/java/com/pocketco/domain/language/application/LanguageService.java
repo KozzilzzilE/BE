@@ -13,4 +13,5 @@ public interface LanguageService {
     AddLanguageResponse addLanguage(AddLanguageRequest req);
     Map<Long, Language> validateAndGetLanguageMap(List<Long> languageIds);
     LanguageListResponse getLanguagesList();
+    Long getLanguageId(String languageName);
 }

@@ -6,15 +6,25 @@ import com.pocketco.domain.admin.dto.AddNotionResponse;
 import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.admin.converter.AdminConverter;
+import com.pocketco.domain.learning.converter.LearningNotionConverter;
+import com.pocketco.domain.learning.dto.LearningNotionCompletionResponse;
+import com.pocketco.domain.learning.dto.LearningNotionResponse;
+import com.pocketco.domain.learning.dto.LearningNotion;
 import com.pocketco.domain.learning.entity.notion.Notion;
 import com.pocketco.domain.learning.entity.notion.NotionCode;
+import com.pocketco.domain.learning.entity.notion.NotionCompletion;
 import com.pocketco.domain.learning.exception.AlreadyExistsNotionPageException;
+import com.pocketco.domain.learning.exception.NotionNotExistsException;
+import com.pocketco.domain.learning.exception.NotionTopicNotExistsException;
 import com.pocketco.domain.learning.repository.notion.NotionCodeRepository;
 import com.pocketco.domain.learning.repository.notion.NotionCompletionRepository;
 import com.pocketco.domain.learning.repository.notion.NotionRepository;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
+import com.pocketco.domain.user.entity.User;
+import com.pocketco.domain.user.exception.UserNotFoundException;
+import com.pocketco.domain.user.repository.UserRepository;
 import com.pocketco.global.util.file.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,8 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +43,7 @@ public class NotionServiceImpl implements NotionService {
     private final NotionRepository notionRepository;
     private final NotionCodeRepository notionCodeRepository;
     private final NotionCompletionRepository notionCompletionRepository;
+    private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
     private final TopicRepository topicRepository;
     private final LanguageService languageService;
@@ -74,5 +86,68 @@ public class NotionServiceImpl implements NotionService {
         notionCodeRepository.saveAll(codes);
 
         return AdminConverter.toAddNotionResponse(savedNotion, req.codes().size());
+    }
+
+    @Override
+    public LearningNotionResponse getLearningNotions(Long topicId, String language, Long userId) {
+        Long languageId = languageService.getLanguageId(language);
+        topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException());
+
+        List<Notion> notions = notionRepository.findByTopic_IdOrderByPageNoAsc(topicId);
+        if (notions.isEmpty()) { throw new NotionTopicNotExistsException(); }
+
+        List<Long> notionIds = notions.stream().map(Notion::getId).toList();
+        List<NotionCode> languageCodes = notionCodeRepository.findByNotion_IdInAndLanguage_Id(notionIds, languageId);
+        List<NotionCode> allCodes = notionCodeRepository.findByNotion_IdIn(notionIds);
+        List<NotionCompletion> completions = notionCompletionRepository.findByNotion_IdInAndUser_Id(notionIds, userId);
+
+        Map<Long, NotionCode> languageCodeMap = languageCodes.stream()
+                .collect(Collectors.toMap(
+                        code -> code.getNotion().getId(),
+                        Function.identity()));
+
+        Set<Long> notionWithAnyCodeIds = allCodes.stream()
+                .map(code -> code.getNotion().getId())
+                .collect(Collectors.toSet());
+
+        Set<Long> completedNotionIds = completions.stream()
+                .map(completion -> completion.getNotion().getId())
+                .collect(Collectors.toSet());
+
+        List<LearningNotion> lists = notions.stream()
+                .map(notion -> {
+                    Long notionId = notion.getId();
+
+                    NotionCode notionCode = languageCodeMap.get(notionId);
+                    boolean hasAnyCode = notionWithAnyCodeIds.contains(notionId);
+                    boolean completed = completedNotionIds.contains(notionId);
+
+                    return LearningNotionConverter.toNotionLResponse(notion, notionCode, language, completed, hasAnyCode);
+                }).toList();
+
+        return LearningNotionResponse.builder()
+                .topicId(topicId)
+                .count(lists.size())
+                .notions(lists)
+                .build();
+    }
+
+    @Override
+    public LearningNotionCompletionResponse notionComplete(Long notionId, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Notion notion = notionRepository.findById(notionId).orElseThrow(NotionNotExistsException::new);
+
+        NotionCompletion completion = NotionCompletion.builder()
+                .user(user)
+                .notion(notion)
+                .build();
+
+        notionCompletionRepository.save(completion);
+
+        return LearningNotionCompletionResponse.builder()
+                .notionId(notionId)
+                .userName(user.getNickname())
+                .notionCompleted(true)
+                .build();
     }
 }

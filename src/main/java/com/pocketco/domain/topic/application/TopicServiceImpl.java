@@ -5,6 +5,7 @@ import com.pocketco.domain.admin.dto.AddTopicResponse;
 import com.pocketco.domain.language.exception.AlreadyExistsLanguageException;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicAlreadyUsedException;
+import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
