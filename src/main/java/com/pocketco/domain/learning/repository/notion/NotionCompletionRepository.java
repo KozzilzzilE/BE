@@ -1,7 +1,7 @@
 package com.pocketco.domain.learning.repository.notion;
 
 import com.pocketco.domain.learning.entity.notion.NotionCompletion;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface NotionCompletionRepository extends CrudRepository<NotionCompletion, Long> {
+public interface NotionCompletionRepository extends JpaRepository<NotionCompletion, Long> {
 }

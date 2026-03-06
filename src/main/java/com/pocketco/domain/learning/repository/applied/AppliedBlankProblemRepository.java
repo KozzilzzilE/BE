@@ -1,7 +1,7 @@
 package com.pocketco.domain.learning.repository.applied;
 
 import com.pocketco.domain.learning.entity.applied.AppliedBlankProblem;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AppliedBlankProblemRepository extends CrudRepository<AppliedBlankProblem, Long> {
+public interface AppliedBlankProblemRepository extends JpaRepository<AppliedBlankProblem, Long> {
 }
