@@ -18,6 +18,7 @@ public enum SuccessStatus implements BaseCode {
 
     // user
     USER_PROFILE_SUCCESS(HttpStatus.OK, "USER_300", "로그인한 유저 조회 성공했습니다."),
+    USER_MAIN_SUCCESS(HttpStatus.OK, "USER_200", "메인 화면 정보 조회 성공했습니다."),
 
     // language
     LANGUAGES_LISTS_SUCCESS(HttpStatus.OK, "LANGUAGE_200", "사용가능한 언어 리스트 조회를 성공했습니다."),
@@ -27,12 +28,13 @@ public enum SuccessStatus implements BaseCode {
     ADMIN_ADD_TOPIC_SUCCESS(HttpStatus.OK, "ADMIN_301", "알고리즘 주제 추가 성공했습니다."),
     ADMIN_ADD_NOTION_SUCCESS(HttpStatus.OK, "ADMIN_302", "개념 학습 페이지 추가 성공했습니다."),
     ADMIN_ADD_APPLIED_EXERCISE_SUCCESS(HttpStatus.OK, "ADMIN_303", "응용 학습 추가 성공했습니다."),
-
-    // mainscreen
-    USER_MAIN_SUCCESS(HttpStatus.OK, "USER_200", "메인 화면 정보 조회 성공했습니다."),
-
-    // SuccessStatus.java
     ADMIN_ADD_PROBLEM_SUCCESS(HttpStatus.OK, "ADMIN_204", "코딩 문제 추가 성공했습니다."),
+
+    // learning
+    LEARNING_NOTION_LIST_SUCCESS(HttpStatus.OK, "LEARNING_200", "개념 학습 조회 성공했습니다."),
+    LEARNING_NOTION_COMPLETED_SUCCESS(HttpStatus.OK, "LEARNING_201", "개념 학습 완료로 DB 변경 성공했습니다."),
+    LEARNING_APPLIED_EXERCISE_LIST_SUCCESS(HttpStatus.OK, "LEARNING_202", "응용 학습 조회 성공했습니다."),
+    LEARNING_APPLIED_EXERCISE_COMPLETED_SUCCESS(HttpStatus.OK, "LEARNING_203", "응용 학습 완료로 DB 변경 성공했습니다."),
 
 
     // token
