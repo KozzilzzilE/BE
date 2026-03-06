@@ -19,6 +19,9 @@ public enum SuccessStatus implements BaseCode {
     // user
     USER_PROFILE_SUCCESS(HttpStatus.OK, "USER_300", "로그인한 유저 조회 성공했습니다."),
 
+    // language
+    LANGUAGES_LISTS_SUCCESS(HttpStatus.OK, "LANGUAGE_200", "사용가능한 언어 리스트 조회를 성공했습니다."),
+
     // admin
     ADMIN_ADD_LANGUAGE_SUCCESS(HttpStatus.OK, "ADMIN_300", "언어 추가 성공했습니다."),
     ADMIN_ADD_TOPIC_SUCCESS(HttpStatus.OK, "ADMIN_301", "알고리즘 주제 추가 성공했습니다."),

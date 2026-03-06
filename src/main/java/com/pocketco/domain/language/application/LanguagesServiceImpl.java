@@ -2,18 +2,18 @@ package com.pocketco.domain.language.application;
 
 import com.pocketco.domain.admin.dto.AddLanguageRequest;
 import com.pocketco.domain.admin.dto.AddLanguageResponse;
+import com.pocketco.domain.language.dto.LanguageList;
+import com.pocketco.domain.language.dto.LanguageListResponse;
 import com.pocketco.domain.language.exception.AlreadyExistsLanguageException;
 import com.pocketco.domain.language.entity.Language;
+import com.pocketco.domain.language.exception.LanguageNotExists;
 import com.pocketco.domain.language.exception.LanguageNotFoundException;
 import com.pocketco.domain.language.repository.LanguageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,5 +62,27 @@ public class LanguagesServiceImpl implements LanguageService {
 
         return languages.stream()
                 .collect(Collectors.toMap(Language::getId, Function.identity()));
+    }
+
+    @Override
+    public LanguageListResponse getLanguagesList() {
+        List<Language> languages = languageRepository.findAllByOrderByIdAsc();
+
+        if (languages.isEmpty()) {
+            throw new LanguageNotExists();
+        }
+
+        List<LanguageList> list = new ArrayList<>();
+        for (Language language : languages) {
+            LanguageList item = LanguageList.builder()
+                    .languageId(language.getId())
+                    .name(language.getName())
+                    .build();
+            list.add(item);
+        }
+        return LanguageListResponse.builder()
+                .count(languages.size())
+                .languages(list)
+                .build();
     }
 }

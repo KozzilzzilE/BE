@@ -30,6 +30,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // --- Language ---
     LANGUAGE_ALREADY_USED(HttpStatus.BAD_REQUEST, "LANGUAGE_400", "이미 추가한 언어입니다"),
     LANGUAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LANGUAGE_401", "선택할 수 없는 언어입니다"),
+    LANGUAGE_NOT_EXISTS(HttpStatus.BAD_REQUEST, "LANGUAGE_404", "선택할 수 있는 언어가 없습니다"),
 
     // --- Topic ---
     TOPIC_ALREADY_USED(HttpStatus.BAD_REQUEST, "TOPIC_400", "이미 추가한 알고리즘 입니다"),
