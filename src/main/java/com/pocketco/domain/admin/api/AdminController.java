@@ -35,7 +35,7 @@ public class AdminController {
             @AuthenticationPrincipal Long userId,
             @RequestBody @Valid AddTopicRequest request) {
         AddTopicResponse result = adminService.addTopic(userId, request);
-        return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_LANGUAGE_SUCCESS, result);
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_TOPIC_SUCCESS, result);
     }
 
     @PostMapping(value = "/notions/additions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
