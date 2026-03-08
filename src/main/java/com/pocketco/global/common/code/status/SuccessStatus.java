@@ -24,10 +24,10 @@ public enum SuccessStatus implements BaseCode {
     LANGUAGES_LISTS_SUCCESS(HttpStatus.OK, "LANGUAGE_200", "사용가능한 언어 리스트 조회를 성공했습니다."),
 
     // admin
-    ADMIN_ADD_LANGUAGE_SUCCESS(HttpStatus.OK, "ADMIN_300", "언어 추가 성공했습니다."),
-    ADMIN_ADD_TOPIC_SUCCESS(HttpStatus.OK, "ADMIN_301", "알고리즘 주제 추가 성공했습니다."),
-    ADMIN_ADD_NOTION_SUCCESS(HttpStatus.OK, "ADMIN_302", "개념 학습 페이지 추가 성공했습니다."),
-    ADMIN_ADD_APPLIED_EXERCISE_SUCCESS(HttpStatus.OK, "ADMIN_303", "응용 학습 추가 성공했습니다."),
+    ADMIN_ADD_LANGUAGE_SUCCESS(HttpStatus.OK, "ADMIN_200", "언어 추가 성공했습니다."),
+    ADMIN_ADD_TOPIC_SUCCESS(HttpStatus.OK, "ADMIN_201", "알고리즘 주제 추가 성공했습니다."),
+    ADMIN_ADD_NOTION_SUCCESS(HttpStatus.OK, "ADMIN_202", "개념 학습 페이지 추가 성공했습니다."),
+    ADMIN_ADD_APPLIED_EXERCISE_SUCCESS(HttpStatus.OK, "ADMIN_203", "응용 학습 추가 성공했습니다."),
     ADMIN_ADD_PROBLEM_SUCCESS(HttpStatus.OK, "ADMIN_204", "코딩 문제 추가 성공했습니다."),
 
     // topic
