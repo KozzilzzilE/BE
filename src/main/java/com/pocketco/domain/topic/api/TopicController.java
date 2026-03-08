@@ -1,0 +1,44 @@
+package com.pocketco.domain.topic.api;
+
+import com.pocketco.domain.problem.application.ProblemService;
+import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
+import com.pocketco.domain.topic.application.TopicService;
+import com.pocketco.domain.topic.dto.TopicListResponseDTO;
+import com.pocketco.global.common.response.BaseResponse;
+import com.pocketco.global.common.code.status.SuccessStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@Tag(name = "Topic API", description = "알고리즘 주제 관련 API")
+@RestController
+@RequestMapping("/api/v1/topics")
+@RequiredArgsConstructor
+public class TopicController {
+
+    private final TopicService topicService;
+    private final ProblemService problemService;
+
+    @Operation(summary = "알고리즘 주제 목록 조회", description = "학습할 수 있는 모든 알고리즘 주제 목록을 반환합니다.")
+    @GetMapping("")
+    public BaseResponse<TopicListResponseDTO> getTopics() {
+        TopicListResponseDTO response = topicService.getTopicList();
+
+        return BaseResponse.onSuccess(SuccessStatus.TOPIC_LIST_SUCCESS, response);
+    }
+
+    @Operation(summary = "선택한 주제의 문제 목록 조회", description = "특정 알고리즘 주제에 속한 문제들을 난이도순으로 조회합니다.")
+    @GetMapping("/{topicId}/problems") // 주소: /api/v1/topics/{topicId}/problems
+    public BaseResponse<ProblemListResponseDTO> getProblemsByTopic(@PathVariable(name = "topicId") Long topicId) {
+
+        ProblemListResponseDTO response = problemService.getProblemListByTopic(topicId);
+
+        // 성공 응답 반환
+        return BaseResponse.onSuccess(SuccessStatus.TOPIC_GET_PROBLEMS_SUCCESS, response);
+    }
+}

@@ -3,6 +3,8 @@ package com.pocketco.domain.problem.application;
 import com.pocketco.domain.admin.dto.*;
 import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
+import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
+import com.pocketco.domain.problem.dto.ProblemResponseDTO;
 import com.pocketco.domain.problem.entity.*;
 import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
@@ -11,7 +13,7 @@ import com.pocketco.domain.topic.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.pocketco.global.exception.GeneralException; // 패키지 경로 확인 필요
+import com.pocketco.global.exception.GeneralException;
 import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.domain.problem.exception.ProblemHandler;
 
@@ -34,7 +36,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     private AddProblemResponse saveOne(AddProblemRequest req) {
-        // 1. [중복 체크] 저장하기 전에 제목이 이미 있는지 확인!
+        // 1.  저장하기 전에 제목이 이미 있는지 확인
         if (problemRepository.existsByTitle(req.title())) {
             throw new ProblemHandler(ErrorStatus.PROBLEM_ALREADY_EXISTS);
         }
@@ -43,7 +45,7 @@ public class ProblemServiceImpl implements ProblemService {
         Topic topic = topicRepository.findById(req.topicId())
                 .orElseThrow(TopicNotFoundException::new);
 
-        // 3. 문제 엔티티 저장 (여기서부터는 기존 코드와 동일)
+        // 3. 문제 엔티티 저장
         Problem problem = Problem.builder()
                 .topic(topic)
                 .title(req.title())
@@ -83,4 +85,41 @@ public class ProblemServiceImpl implements ProblemService {
                 .testCaseCount(testCases.size())
                 .solutionCodeCount(codes.size())
                 .build();
-    }}
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public ProblemListResponseDTO getProblemListByTopic(Long topicId) {
+
+        // 해당 토픽이 존재하는지 먼저 확인 -> 없으면 에러남
+        if (!topicRepository.existsById(topicId)) {
+            throw new TopicNotFoundException();
+        }
+
+        List<Problem> problems = problemRepository.findAllByTopicIdOrderByDifficultyOrderAscIdAsc(topicId);
+
+        List<ProblemResponseDTO> resultDTOs = problems.stream()
+                .map(problem -> {
+                    String displayName = switch (problem.getDifficulty().toUpperCase()) {
+                        case "EASY" -> "쉬움";
+                        case "NORMAL" -> "보통";
+                        case "HARD" -> "어려움";
+                        default -> "미정";
+                    };
+
+                    return ProblemResponseDTO.builder()
+                            .problemId(problem.getId())
+                            .title(problem.getTitle())
+                            .difficulty(problem.getDifficulty())
+                            .difficultyDisplayName(displayName)
+                            .build();
+                })
+                .toList();
+
+        return ProblemListResponseDTO.builder()
+                .topicId(topicId)
+                .count(resultDTOs.size())
+                .problems(resultDTOs)
+                .build();
+    }
+}
+
