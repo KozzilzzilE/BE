@@ -57,7 +57,7 @@ public class TopicServiceImpl implements TopicService {
 
         return TopicListResponseDTO.builder()
                 .count(topicDTOs.size())
-                .result(topicDTOs)
+                .topics(topicDTOs)
                 .build();
     }
 }

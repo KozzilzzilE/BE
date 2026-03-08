@@ -6,5 +6,5 @@ import java.util.List;
 @Builder
 public record TopicListResponseDTO(
         Integer count,
-        List<TopicResponseDTO> result
+        List<TopicResponseDTO> topics
 ) {}

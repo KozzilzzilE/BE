@@ -7,5 +7,5 @@ import java.util.List;
 public record ProblemListResponseDTO(
         Long topicId,
         Integer count,
-        List<ProblemResponseDTO> result
+        List<ProblemResponseDTO> problems
 ) {}

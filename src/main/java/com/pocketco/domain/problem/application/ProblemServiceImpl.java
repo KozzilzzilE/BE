@@ -118,7 +118,7 @@ public class ProblemServiceImpl implements ProblemService {
         return ProblemListResponseDTO.builder()
                 .topicId(topicId)
                 .count(resultDTOs.size())
-                .result(resultDTOs)
+                .problems(resultDTOs)
                 .build();
     }
 }
