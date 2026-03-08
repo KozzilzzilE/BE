@@ -30,6 +30,7 @@ public enum SuccessStatus implements BaseCode {
 
     // problem
     ADMIN_ADD_PROBLEM_SUCCESS(HttpStatus.OK, "ADMIN_204", "코딩 문제 추가 성공했습니다."),
+    TOPIC_GET_PROBLEMS_SUCCESS(HttpStatus.OK, "TOPIC_202", "문제 목록 조회 성공"),
 
     // topic
     TOPIC_LIST_SUCCESS(HttpStatus.OK, "TOPIC_200", "알고리즘 목록 조회 성공"),
