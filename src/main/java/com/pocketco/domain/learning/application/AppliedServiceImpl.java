@@ -6,10 +6,17 @@ import com.pocketco.domain.admin.dto.AddAppliedRequest;
 import com.pocketco.domain.admin.dto.AddAppliedResponse;
 import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
+import com.pocketco.domain.learning.converter.LearningAppliedExerciseConverter;
+import com.pocketco.domain.learning.dto.LearningAppliedCompletionResponse;
+import com.pocketco.domain.learning.dto.LearningAppliedExercise;
+import com.pocketco.domain.learning.dto.LearningAppliedExerciseResponse;
 import com.pocketco.domain.learning.entity.applied.AppliedBlankProblem;
 import com.pocketco.domain.learning.entity.applied.AppliedCode;
+import com.pocketco.domain.learning.entity.applied.AppliedCompletion;
 import com.pocketco.domain.learning.entity.applied.AppliedExercise;
 import com.pocketco.domain.learning.exception.AlreadyExistsAppliedExerciseException;
+import com.pocketco.domain.learning.exception.AppliedExerciseNotExistsException;
+import com.pocketco.domain.learning.exception.AppliedExerciseTopicNotExistsException;
 import com.pocketco.domain.learning.repository.applied.AppliedBlankProblemRepository;
 import com.pocketco.domain.learning.repository.applied.AppliedCodeRepository;
 import com.pocketco.domain.learning.repository.applied.AppliedCompletionRepository;
@@ -17,6 +24,9 @@ import com.pocketco.domain.learning.repository.applied.AppliedExerciseRepository
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
+import com.pocketco.domain.user.entity.User;
+import com.pocketco.domain.user.exception.UserNotFoundException;
+import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -36,6 +47,7 @@ public class AppliedServiceImpl implements AppliedService {
     private final AppliedCodeRepository appliedCodeRepository;
     private final AppliedBlankProblemRepository appliedBlankProblemRepository;
     private final AppliedCompletionRepository appliedCompletionRepository;
+    private final UserRepository userRepository;
     private final TopicRepository topicRepository;
     private final LanguageService languageService;
 
@@ -44,6 +56,68 @@ public class AppliedServiceImpl implements AppliedService {
         return reqs.stream()
                 .map(req -> processSingleApplied(req))
                 .toList();
+    }
+
+    @Override
+    public LearningAppliedExerciseResponse getLearningAppliedExercise(Long topicId, String language, Long userId) {
+        Long languageId = languageService.getLanguageId(language);
+        topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException());
+
+        List<AppliedExercise> exercises = appliedExerciseRepository.findByTopic_IdOrderByOrderNoAsc(topicId);
+        if (exercises.isEmpty()) { throw new AppliedExerciseTopicNotExistsException(); }
+
+        List<Long> exerciseIds = exercises.stream().map(AppliedExercise::getId).toList();
+        List<AppliedCode> appliedCodes = appliedCodeRepository.findByExercise_IdInAndLanguage_Id(exerciseIds, languageId);
+        List<Long> codeIds = appliedCodes.stream().map(AppliedCode::getId).toList();
+        List<AppliedBlankProblem> blanks = appliedBlankProblemRepository.findByExerciseCode_IdIn(codeIds);
+        List<AppliedCompletion> completions = appliedCompletionRepository.findByExercise_IdInAndUser_Id(exerciseIds, userId);
+
+        Map<Long, AppliedCode> appliedCodeMap = appliedCodes.stream()
+                .collect(Collectors.toMap(
+                        code -> code.getExercise().getId(),
+                        Function.identity()));
+
+        Map<Long, List<AppliedBlankProblem>> appliedBlankMap = blanks.stream()
+                .collect(Collectors.groupingBy(blank -> blank.getExerciseCode().getId()));
+
+        Set<Long> completedAppliedIds = completions.stream()
+                .map(completion -> completion.getExercise().getId())
+                .collect(Collectors.toSet());
+
+        List<LearningAppliedExercise> lists = exercises.stream()
+                .map(exercise -> {
+                    Long exerciseId = exercise.getId();
+
+                    AppliedCode appliedCode = appliedCodeMap.get(exerciseId);
+                    List<AppliedBlankProblem> appliedBlanks = null;
+                    if (appliedCode != null) { appliedBlanks = appliedBlankMap.get(appliedCode.getId()); }
+                    boolean completed = completedAppliedIds.contains(exerciseId);
+
+                    return LearningAppliedExerciseConverter.toExerciseResponse(exercise, appliedCode, completed, appliedBlanks);
+                }).toList();
+
+        return LearningAppliedExerciseResponse.builder()
+                .count(lists.size())
+                .appliedExercises(lists)
+                .build();
+    }
+
+    @Override
+    public LearningAppliedCompletionResponse AppliedComplete(Long exerciseId, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        AppliedExercise appliedExercise = appliedExerciseRepository.findById(exerciseId).orElseThrow(AppliedExerciseNotExistsException::new);
+
+        AppliedCompletion completion = AppliedCompletion.builder()
+                .exercise(appliedExercise)
+                .user(user)
+                .build();
+        appliedCompletionRepository.save(completion);
+
+        return LearningAppliedCompletionResponse.builder()
+                .exerciseId(exerciseId)
+                .userName(user.getNickname())
+                .appliedCompleted(true)
+                .build();
     }
 
     private AddAppliedResponse processSingleApplied(AddAppliedRequest req) {
