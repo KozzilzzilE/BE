@@ -5,6 +5,7 @@ import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemResponseDTO;
+import com.pocketco.domain.problem.dto.*;
 import com.pocketco.domain.problem.entity.*;
 import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
@@ -121,5 +122,57 @@ public class ProblemServiceImpl implements ProblemService {
                 .problems(resultDTOs)
                 .build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProblemDetailResponseDTO getProblemDetail(Long problemId) {
+        // 1. 문제 엔티티 조회
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+
+        // 2. 테스트 케이스 변환 (명세서대로 최대 2개만 추출)
+        List<TestCaseDTO> testCaseDTOs = problem.getTestCases().stream()
+                .limit(2) // ✨ 포인트: 상위 2개만 가져오기
+                .map(tc -> TestCaseDTO.builder()
+                        .input(tc.getInput())
+                        .output(tc.getOutput())
+                        .build())
+                .toList();
+
+        // 3. 최종 DTO 조립
+        return ProblemDetailResponseDTO.builder()
+                .exerciseId(problem.getId())
+                .title(problem.getTitle())
+                .description(problem.getDescription())
+                .constraint(problem.getConstraints())
+                .testCases(testCaseDTOs)
+                .isCompleted(false) // 아직 연동 전이라 기본값 false
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProblemSolutionResponseDTO getProblemSolution(Long problemId, Long languageId) {
+        // 1. 문제 엔티티 조회
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+
+        // 2. 요청받은 언어와 일치하는 모범 답안 찾기
+        SolutionCode solutionCode = problem.getSolutionCodes().stream()
+                .filter(sc -> sc.getLanguage().getId().equals(languageId))
+                .findFirst()
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.SOLUTION_NOT_FOUND));
+
+        // 3. 답안 DTO 반환
+        return ProblemSolutionResponseDTO.builder()
+                .lineSolution(problem.getLineSolution())
+                .solutionText(problem.getSolutionText())
+                .language(solutionCode.getLanguage().getName())
+                .solutionCode(solutionCode.getCode())
+                .build();
+    }
 }
+
+
+
 

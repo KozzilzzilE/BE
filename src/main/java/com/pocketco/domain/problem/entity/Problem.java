@@ -5,6 +5,9 @@ import com.pocketco.domain.topic.entity.Topic;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -30,7 +33,7 @@ public class Problem extends BaseEntity {
     @Column(name = "difficulty_order", nullable = false)
     private Integer difficultyOrder;
 
-    @Lob // 아주 긴 텍스트를 담을 수 있게 해줍니다.
+    @Lob
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
 
@@ -45,4 +48,12 @@ public class Problem extends BaseEntity {
     @Lob
     @Column(name = "solution_text", columnDefinition = "TEXT",nullable = false)
     private String solutionText;
+
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TestCase> testCases = new ArrayList<>();
+
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<SolutionCode> solutionCodes = new ArrayList<>();
 }

@@ -52,7 +52,10 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_MAIN_INFO_FAIL(HttpStatus.BAD_REQUEST, "USER_400", "메인 화면 정보를 불러오는 데 실패했습니다."),
 
     // --- problem ---
-    PROBLEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "PROB4001", "이미 존재하는 문제 제목입니다.");
+    PROBLEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "PROB4001", "이미 존재하는 문제 제목입니다."),
+    PROBLEM_NOT_FOUND(HttpStatus.NOT_FOUND, "PROB404", "문제를 찾을 수 없습니다."),
+    SOLUTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SOL404", "해당 언어의 모범 답안이 없습니다.");
+
     ;
 
     private final HttpStatus httpStatus;
