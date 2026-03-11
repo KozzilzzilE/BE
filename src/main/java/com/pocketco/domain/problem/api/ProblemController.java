@@ -28,11 +28,11 @@ public class ProblemController {
     @GetMapping("/{problemId}/solutions")
     public BaseResponse<ProblemSolutionResponseDTO> getProblemSolution(
             @PathVariable(name = "problemId") Long problemId,
-            @RequestParam(name = "languageId") Long languageId){
+            @RequestParam(name = "language") String language){
 
         return BaseResponse.onSuccess(
                 SuccessStatus.PROBLEM_SOLUTION_GET_SUCCESS,
-                problemService.getProblemSolution(problemId, languageId)
+                problemService.getProblemSolution(problemId, language)
         );
     }
 }

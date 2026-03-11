@@ -15,5 +15,5 @@ public interface ProblemService {
 
     ProblemDetailResponseDTO getProblemDetail(Long problemId);
 
-    ProblemSolutionResponseDTO getProblemSolution(Long problemId, Long languageId);
+    ProblemSolutionResponseDTO getProblemSolution(Long problemId, String language);
 }
