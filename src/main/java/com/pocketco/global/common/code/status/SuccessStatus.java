@@ -41,6 +41,8 @@ public enum SuccessStatus implements BaseCode {
     LEARNING_APPLIED_EXERCISE_COMPLETED_SUCCESS(HttpStatus.OK, "LEARNING_203", "응용 학습 완료로 DB 변경 성공했습니다."),
 
     // problem
+    PROBLEM_DETAIL_GET_SUCCESS(HttpStatus.OK, "PROBLEM_200", "문제 상세 정보 조회 성공"),
+    PROBLEM_SOLUTION_GET_SUCCESS(HttpStatus.OK, "PROBLEM_201", "모범 답안 조회 성공"),
 
 
     // token

@@ -5,6 +5,7 @@ import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemResponseDTO;
+import com.pocketco.domain.problem.dto.*;
 import com.pocketco.domain.problem.entity.*;
 import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
@@ -121,5 +122,58 @@ public class ProblemServiceImpl implements ProblemService {
                 .problems(resultDTOs)
                 .build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProblemDetailResponseDTO getProblemDetail(Long problemId) {
+        // 1. 문제 엔티티 조회
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+
+        // 2. 테스트 케이스 변환 (명세서대로 최대 2개만 추출)
+        List<TestCaseDTO> testCaseDTOs = problem.getTestCases().stream()
+                .limit(2) // ✨ 포인트: 상위 2개만 가져오기
+                .map(tc -> TestCaseDTO.builder()
+                        .input(tc.getInput())
+                        .output(tc.getOutput())
+                        .build())
+                .toList();
+
+        // 3. 최종 DTO 조립
+        return ProblemDetailResponseDTO.builder()
+                .exerciseId(problem.getId())
+                .title(problem.getTitle())
+                .description(problem.getDescription())
+                .constraint(problem.getConstraints())
+                .testCases(testCaseDTOs)
+                .isCompleted(false) // 아직 연동 전이라 기본값 false
+                .build();
+    }
+
+    // ✨ 153번 라인 부근 수정
+    @Override
+    @Transactional(readOnly = true)
+    public ProblemSolutionResponseDTO getProblemSolution(Long problemId, String languageName) { // 👈 Long languageId를 String languageName으로 변경!
+        // 1. 문제 엔티티 조회
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+
+        // 2. 완수 오빠 피드백 반영: 문제에 해당 언어의 답안이 있는지 확인
+        SolutionCode solutionCode = problem.getSolutionCodes().stream()
+                .filter(sc -> sc.getLanguage().getName().equalsIgnoreCase(languageName)) // ✨ 이름으로 필터링
+                .findFirst()
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.SOLUTION_NOT_FOUND)); // 👈 오빠가 말한 예외 처리 디테일!
+
+        // 3. 답안 DTO 반환
+        return ProblemSolutionResponseDTO.builder()
+                .lineSolution(problem.getLineSolution())
+                .solutionText(problem.getSolutionText())
+                .language(solutionCode.getLanguage().getName())
+                .solutionCode(solutionCode.getCode())
+                .build();
+    }
 }
+
+
+
 
