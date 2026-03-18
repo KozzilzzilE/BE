@@ -2,6 +2,7 @@ package com.pocketco.domain.admin.api;
 
 import com.pocketco.domain.admin.application.AdminService;
 import com.pocketco.domain.admin.dto.*;
+import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.global.common.code.status.SuccessStatus;
 import com.pocketco.global.common.response.BaseResponse;
 import jakarta.validation.Valid;
@@ -61,5 +62,11 @@ public class AdminController {
             @RequestBody @Valid List<AddProblemRequest> requests) { // @Valid로 검증 잊지 마세요!
         List<AddProblemResponse> results = adminService.addProblems(userId, requests);
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_PROBLEM_SUCCESS, results);
+    }
+
+    @GetMapping("/judge0/languages")
+    public BaseResponse<List<Judge0LanguageResponse>> getJudge0Languages(@AuthenticationPrincipal Long userId) {
+        List<Judge0LanguageResponse> results = adminService.judge0Languages(userId);
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_JUDGE0_LANGUAGE_LIST, results);
     }
 }
