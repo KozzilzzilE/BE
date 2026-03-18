@@ -50,3 +50,7 @@ app:
 # fire base
 firebase:
   credentials-path: ${FIREBASE_FILE_PATH}
+
+# Judge0
+judge0:
+  base-url: ${JUDGE0_BASE_URL}
