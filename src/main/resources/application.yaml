@@ -24,6 +24,13 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
     format_sql: true
+  #redis
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: pocketcoredis123
+
 
 # jwt
 jwt:

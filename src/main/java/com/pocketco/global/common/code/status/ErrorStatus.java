@@ -54,7 +54,10 @@ public enum ErrorStatus implements BaseErrorCode {
     // --- problem ---
     PROBLEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "PROBLEM_400", "이미 존재하는 문제 제목입니다."),
     PROBLEM_NOT_FOUND(HttpStatus.NOT_FOUND, "PROBLEM_404", "문제를 찾을 수 없습니다."),
-    SOLUTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PROBLEM_405", "해당 언어의 모범 답안이 없습니다.");
+    SOLUTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PROBLEM_405", "해당 언어의 모범 답안이 없습니다."),
+
+
+
     ;
 
     private final HttpStatus httpStatus;
