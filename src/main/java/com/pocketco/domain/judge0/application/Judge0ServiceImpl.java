@@ -10,19 +10,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import java.util.Base64;
-import java.nio.charset.StandardCharsets;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
-import reactor.core.publisher.Flux;
 import java.util.UUID;
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
 import com.pocketco.domain.problem.repository.ProblemRepository;
-import com.pocketco.global.common.redis.RedisService;
 import com.pocketco.global.common.code.status.ErrorStatus;
-import com.pocketco.global.exception.handler.ProblemHandler;
-import com.pocketco.global.exception.handler.LanguageHandler;
+import com.pocketco.domain.problem.repository.TestCaseRepository;
+import com.pocketco.domain.problem.exception.ProblemHandler;
 
 
 import java.util.List;
@@ -32,6 +28,7 @@ import java.util.List;
 @Transactional
 public class Judge0ServiceImpl implements Judge0Service {
     private final WebClient webClient;
+    private final TestCaseRepository testCaseRepository;
     private final RedisService redisService;
     private final LanguageRepository languageRepository;
     private final ProblemRepository problemRepository;
@@ -56,9 +53,9 @@ public class Judge0ServiceImpl implements Judge0Service {
         // 2. 언어 존재 확인
         int languageId = languageRepository.findByName(language)
                 .map(Language::getCode)
-                .orElseThrow(() -> new LanguageHandler(ErrorStatus.LANGUAGE_NOT_FOUND));
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.LANGUAGE_NOT_FOUND));
 
-        return fetchRealTokensFromJudge0(languageId, request);
+        return fetchRealTokensFromJudge0(problemId, languageId, request);
     }
 
     @Override
@@ -69,9 +66,8 @@ public class Judge0ServiceImpl implements Judge0Service {
 
         int languageId = languageRepository.findByName(languageName)
                 .map(Language::getCode)
-                .orElseThrow(() -> new LanguageHandler(ErrorStatus.LANGUAGE_NOT_FOUND));
-
-        List<String> realTokens = fetchRealTokensFromJudge0(languageId, request);
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.LANGUAGE_NOT_FOUND));
+        List<String> realTokens = fetchRealTokensFromJudge0(problemId, languageId, request);
         String submissionId = UUID.randomUUID().toString();
         redisService.saveTokens(submissionId, realTokens);
 
@@ -136,14 +132,20 @@ public class Judge0ServiceImpl implements Judge0Service {
 
 
 
-    private List<String> fetchRealTokensFromJudge0(int languageId, CodeSubmitRequest request) {
+    private List<String> fetchRealTokensFromJudge0(Long problemId, int languageId, CodeSubmitRequest request) {
         //String encodedSource = Base64.getEncoder()
                 //.encodeToString(request.sourceCode().getBytes(StandardCharsets.UTF_8));
 
-        List<Judge0IndividualRequest> individualRequests = List.of(
-                new Judge0IndividualRequest(request.sourceCode(), languageId, "2 7 11 15 9", "0 1"),
-                new Judge0IndividualRequest(request.sourceCode(), languageId, "input2", "output2")
-        );
+        List<com.pocketco.domain.problem.entity.TestCase> testCases = testCaseRepository.findByProblemId(problemId);
+
+        List<Judge0IndividualRequest> individualRequests = testCases.stream()
+                .map(tc -> new Judge0IndividualRequest(
+                        request.sourceCode(),
+                        languageId,
+                        tc.getInput(),  // DB의 입력값
+                        tc.getOutput()  // DB의 기대 결과값
+                ))
+                .toList();
 
         Judge0BatchRequest batchRequest = new Judge0BatchRequest(individualRequests);
 
