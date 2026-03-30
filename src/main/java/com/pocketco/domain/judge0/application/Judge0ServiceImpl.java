@@ -137,18 +137,18 @@ public class Judge0ServiceImpl implements Judge0Service {
 
 
     private List<String> fetchRealTokensFromJudge0(int languageId, CodeSubmitRequest request) {
-        String encodedSource = Base64.getEncoder()
-                .encodeToString(request.sourceCode().getBytes(StandardCharsets.UTF_8));
+        //String encodedSource = Base64.getEncoder()
+                //.encodeToString(request.sourceCode().getBytes(StandardCharsets.UTF_8));
 
         List<Judge0IndividualRequest> individualRequests = List.of(
-                new Judge0IndividualRequest(encodedSource, languageId, "input1", "output1"),
-                new Judge0IndividualRequest(encodedSource, languageId, "input2", "output2")
+                new Judge0IndividualRequest(request.sourceCode(), languageId, "2 7 11 15 9", "0 1"),
+                new Judge0IndividualRequest(request.sourceCode(), languageId, "input2", "output2")
         );
 
         Judge0BatchRequest batchRequest = new Judge0BatchRequest(individualRequests);
 
         return webClient.post()
-                .uri("/submissions/batch?base64_encoded=true&wait=false")
+                .uri("/submissions/batch?wait=false")
                 .bodyValue(batchRequest)
                 .retrieve()
                 .bodyToFlux(Judge0TokenResponse.class)
