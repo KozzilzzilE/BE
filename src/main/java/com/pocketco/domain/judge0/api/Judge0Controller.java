@@ -1,6 +1,7 @@
 package com.pocketco.domain.judge0.api;
 
 import com.pocketco.domain.judge0.application.Judge0Service;
+import com.pocketco.domain.judge0.dto.CodeRunResultResponse;
 import com.pocketco.domain.judge0.dto.CodeSubmitRequest;
 import com.pocketco.global.common.code.status.SuccessStatus;
 import com.pocketco.global.common.response.BaseResponse;
@@ -41,5 +42,11 @@ public class Judge0Controller {
         String submissionId = judge0Service.submitCode(problemId, language, request);
 
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_SUBMIT_SUCCESS, Map.of("submissionId", submissionId));
+    }
+
+    @GetMapping("/runs/{token}/results")
+    public BaseResponse<CodeRunResultResponse> runResults(@PathVariable("token") String token) {
+        CodeRunResultResponse result = judge0Service.codeRunResult(token);
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_RUN_RESULT_SUCCESS, result);
     }
 }

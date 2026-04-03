@@ -2,6 +2,7 @@ package com.pocketco.domain.judge0.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pocketco.domain.judge0.converter.Judge0Converter;
 import com.pocketco.domain.judge0.dto.Judge0LanguageExternal;
 import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.domain.judge0.dto.CodeSubmitRequest;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
+
+import java.util.ArrayList;
 import java.util.UUID;
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
@@ -104,12 +107,48 @@ public class Judge0ServiceImpl implements Judge0Service {
     }
 
     @Override
+    public CodeRunResultResponse codeRunResult(String token) {
+        if (token == null || token.isBlank()) {
+            return CodeRunResultResponse.builder()
+                    .statusId(-1)
+                    .status("토큰이 없습니다")
+                    .build();
+        }
+        try {
+            Judge0RunResultResponse response = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/submissions/{token}")
+                            .queryParam("fields", "stdin,stdout,status")
+                            .build(token))
+                    .retrieve()
+                    .bodyToMono(Judge0RunResultResponse.class)
+                    .block();
+
+            if (response == null) {
+                return CodeRunResultResponse.builder()
+                        .statusId(-1)
+                        .status("응답이 없습니다")
+                        .build();
+            }
+            return Judge0Converter.toRunResultResponse(response);
+        } catch (Exception e) {
+            return CodeRunResultResponse.builder()
+                    .statusId(-1)
+                    .status("Judge0 조회 실패")
+                    .build();
+        }
+    }
+
+    @Override
     public SubmissionResultResponse getResult(String submissionId) {
         List<String> tokens = redisService.getTokens(submissionId);
 
         for (String token : tokens) {
             Judge0StatusResponse response = webClient.get()
-                    .uri("/submissions/" + token + "?base64_encoded=true&fields=status")
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/submissions/{token}")
+                            .queryParam("fields", "status")
+                            .build(token))
                     .retrieve()
                     .bodyToMono(Judge0StatusResponse.class)
                     .block();
