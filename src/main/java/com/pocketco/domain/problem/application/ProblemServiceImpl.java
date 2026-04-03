@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.global.exception.GeneralException;
 import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.domain.problem.exception.ProblemHandler;
+import java.util.Comparator;
 
 import java.util.List;
 import java.util.Map;
@@ -132,12 +133,16 @@ public class ProblemServiceImpl implements ProblemService {
 
         // 2. 테스트 케이스 변환 (명세서대로 최대 2개만 추출)
         List<TestCaseDTO> testCaseDTOs = problem.getTestCases().stream()
-                .limit(2) // ✨ 포인트: 상위 2개만 가져오기
+                .sorted(Comparator.comparing(TestCase::getId))
+                .limit(2)
                 .map(tc -> TestCaseDTO.builder()
                         .input(tc.getInput())
                         .output(tc.getOutput())
                         .build())
                 .toList();
+
+        System.out.println("--- [상세조회] 화면에 보여줄 테스트케이스 ---");
+        testCaseDTOs.forEach(tc -> System.out.println("입력: " + tc.input()));
 
         // 3. 최종 DTO 조립
         return ProblemDetailResponseDTO.builder()
@@ -150,7 +155,6 @@ public class ProblemServiceImpl implements ProblemService {
                 .build();
     }
 
-    // ✨ 153번 라인 부근 수정
     @Override
     @Transactional(readOnly = true)
     public ProblemSolutionResponseDTO getProblemSolution(Long problemId, String languageName) { // 👈 Long languageId를 String languageName으로 변경!

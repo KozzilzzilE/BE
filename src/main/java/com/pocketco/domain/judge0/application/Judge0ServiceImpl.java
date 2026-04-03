@@ -143,9 +143,9 @@ public class Judge0ServiceImpl implements Judge0Service {
         List<com.pocketco.domain.problem.entity.TestCase> testCases;
 
         if (isSampleOnly) {
-            testCases = testCaseRepository.findTop2ByProblemId(problemId); // 실행(Run)용 2개
+            testCases = testCaseRepository.findTop2ByProblemIdOrderByIdAsc(problemId);
         } else {
-            testCases = testCaseRepository.findByProblemId(problemId);    // 제출(Submit)용 전체
+            testCases = testCaseRepository.findByProblemId(problemId);
         }
         List<Judge0IndividualRequest> individualRequests = testCases.stream()
                 .map(tc -> new Judge0IndividualRequest(
@@ -157,6 +157,9 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .toList();
 
         Judge0BatchRequest batchRequest = new Judge0BatchRequest(individualRequests);
+        // fetchRealTokensFromJudge0 로직 안에 추가
+        System.out.println("--- [실행/제출] Judge0로 보내는 테스트케이스 ---");
+        testCases.forEach(tc -> System.out.println("ID: " + tc.getId() + " | 입력: " + tc.getInput()));
 
         return webClient.post()
                 .uri("/submissions/batch?wait=false")
