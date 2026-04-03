@@ -11,16 +11,17 @@ import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
+import com.pocketco.domain.user.entity.History;
+import com.pocketco.domain.user.exception.UserNotFoundException;
+import com.pocketco.domain.user.repository.HistoryRepository;
+import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.pocketco.global.exception.GeneralException;
 import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.domain.problem.exception.ProblemHandler;
-import java.util.Comparator;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,8 @@ public class ProblemServiceImpl implements ProblemService {
     private final SolutionCodeRepository solutionCodeRepository;
     private final TopicRepository topicRepository;
     private final LanguageService languageService;
+    private final HistoryRepository historyRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<AddProblemResponse> addProblems(List<AddProblemRequest> requests) {
@@ -173,6 +176,17 @@ public class ProblemServiceImpl implements ProblemService {
                 .language(solutionCode.getLanguage().getName())
                 .solutionCode(solutionCode.getCode())
                 .build();
+    }
+
+    @Override
+    public List<ProblemHistoryResponse> getProblemHistory(Long userId, Long problemId) {
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        problemRepository.findById(problemId).orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+
+        return historyRepository.findByUser_IdAndProblem_IdOrderByCreatedAtDesc(userId, problemId)
+                .stream()
+                .map(ProblemHistoryResponse::from)
+                .toList();
     }
 }
 
