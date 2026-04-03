@@ -157,18 +157,16 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProblemSolutionResponseDTO getProblemSolution(Long problemId, String languageName) { // 👈 Long languageId를 String languageName으로 변경!
-        // 1. 문제 엔티티 조회
+    public ProblemSolutionResponseDTO getProblemSolution(Long problemId, String languageName) {
+
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
 
-        // 2. 완수 오빠 피드백 반영: 문제에 해당 언어의 답안이 있는지 확인
         SolutionCode solutionCode = problem.getSolutionCodes().stream()
-                .filter(sc -> sc.getLanguage().getName().equalsIgnoreCase(languageName)) // ✨ 이름으로 필터링
+                .filter(sc -> sc.getLanguage().getName().equalsIgnoreCase(languageName))
                 .findFirst()
-                .orElseThrow(() -> new ProblemHandler(ErrorStatus.SOLUTION_NOT_FOUND)); // 👈 오빠가 말한 예외 처리 디테일!
+                .orElseThrow(() -> new ProblemHandler(ErrorStatus.SOLUTION_NOT_FOUND));
 
-        // 3. 답안 DTO 반환
         return ProblemSolutionResponseDTO.builder()
                 .lineSolution(problem.getLineSolution())
                 .solutionText(problem.getSolutionText())
