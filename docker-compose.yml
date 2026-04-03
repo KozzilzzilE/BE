@@ -1,8 +1,0 @@
-version: '3.8'
-services:
-  redis:
-    image: redis:7.2.4
-    container_name: pocketco-redis
-    ports:
-      - "6379:6379"  # 👈 우리 서버가 접속할 수 있는 '문'이에요!
-    command: redis-server --requirepass pocketcoredis123
