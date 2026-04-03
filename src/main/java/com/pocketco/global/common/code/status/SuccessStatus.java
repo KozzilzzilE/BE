@@ -46,6 +46,9 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_SOLUTION_GET_SUCCESS(HttpStatus.OK, "PROBLEM_201", "모범 답안 조회 성공"),
     PROBLEM_RUN_SUCCESS(HttpStatus.OK, "PROBLEM_202", "문제 코드 실행 요청 성공"),
     PROBLEM_SUBMIT_SUCCESS(HttpStatus.OK, "PROBLEM_203", "문제 코드 채점 요청 성공"),
+    PROBLEM_RUN_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_204", "문제 코드 실행 결과 조회 성공"),
+    PROBLEM_SUBMIT_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_205", "문제 코드 채점 결과 조회 성공"),
+    PROBLEM_SUBMIT_HISTORY_SUCCESS(HttpStatus.OK, "PROBLEM_206", "사용자 문제 제출 기록 조회 성공"),
 
 
     // token

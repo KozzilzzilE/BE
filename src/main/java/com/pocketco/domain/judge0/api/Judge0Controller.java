@@ -1,10 +1,14 @@
 package com.pocketco.domain.judge0.api;
 
 import com.pocketco.domain.judge0.application.Judge0Service;
+import com.pocketco.domain.judge0.dto.CodeRunResultResponse;
 import com.pocketco.domain.judge0.dto.CodeSubmitRequest;
+import com.pocketco.domain.judge0.dto.SubmissionResponse;
+import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
 import com.pocketco.global.common.code.status.SuccessStatus;
 import com.pocketco.global.common.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +37,28 @@ public class Judge0Controller {
     }
 
     @PostMapping("/{problemId}/submissions")
-    public BaseResponse<Map<String, String>> submitCode(
+    public BaseResponse<SubmissionResponse> submitCode(
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long problemId,
             @RequestParam String language,
             @RequestBody CodeSubmitRequest request) {
 
-        String submissionId = judge0Service.submitCode(problemId, language, request);
+        SubmissionResponse result = judge0Service.submitCode(userId, problemId, language, request);
 
-        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_SUBMIT_SUCCESS, Map.of("submissionId", submissionId));
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_SUBMIT_SUCCESS, result);
+    }
+
+    @GetMapping("/runs/{token}/results")
+    public BaseResponse<CodeRunResultResponse> runResults(@PathVariable("token") String token) {
+        CodeRunResultResponse result = judge0Service.codeRunResult(token);
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_RUN_RESULT_SUCCESS, result);
+    }
+
+    @GetMapping("/submissions/{historyId}/results")
+    public BaseResponse<SubmissionResultResponse> submitResult(
+            @PathVariable("historyId") Long historyId,
+            @RequestParam("submissionId") String submissionId) {
+        SubmissionResultResponse result = judge0Service.getSubmitResult(historyId, submissionId);
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_SUBMIT_RESULT_SUCCESS, result);
     }
 }
