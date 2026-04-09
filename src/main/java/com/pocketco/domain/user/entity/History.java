@@ -21,7 +21,7 @@ public class History extends BaseEntity {
     private Long id;
 
     @Lob
-    @Column(name = "source_code", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "source_code", nullable = false)
     private String sourceCode;
 
     @Enumerated(EnumType.STRING)
@@ -31,6 +31,15 @@ public class History extends BaseEntity {
     @Column(name = "is_solved", nullable = false)
     @ColumnDefault("false")
     private boolean isSolved;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ai_status", nullable = false)
+    @ColumnDefault("'NOT_REQUESTED'")
+    private AIReviewStatus aiStatus = AIReviewStatus.NOT_REQUESTED;
+
+    @Lob
+    @Column(name = "ai_review")
+    private String aiReview;
 
     @Column(name = "is_solution_viewed", nullable = false)
     @ColumnDefault("false")
