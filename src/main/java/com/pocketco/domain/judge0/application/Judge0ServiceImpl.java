@@ -7,10 +7,7 @@ import com.pocketco.domain.judge0.dto.Judge0LanguageExternal;
 import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.domain.judge0.dto.CodeSubmitRequest;
 import com.pocketco.domain.problem.entity.Problem;
-import com.pocketco.domain.user.entity.History;
-import com.pocketco.domain.user.entity.HistoryStatus;
-import com.pocketco.domain.user.entity.Judge0Token;
-import com.pocketco.domain.user.entity.User;
+import com.pocketco.domain.user.entity.*;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.exception.HistoryNotFoundException;
@@ -95,6 +92,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .sourceCode(request.sourceCode())
                 .status(HistoryStatus.PROCESSING)
                 .isSolved(isSolved)
+                .aiStatus(AIReviewStatus.NOT_REQUESTED)
                 .isSolutionViewed(false)
                 .isGoalMet(false)
                 .user(me)
