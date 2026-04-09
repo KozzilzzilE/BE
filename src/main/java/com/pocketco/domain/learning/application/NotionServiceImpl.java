@@ -122,7 +122,13 @@ public class NotionServiceImpl implements NotionService {
                     boolean hasAnyCode = notionWithAnyCodeIds.contains(notionId);
                     boolean completed = completedNotionIds.contains(notionId);
 
-                    return LearningNotionConverter.toNotionLResponse(notion, notionCode, language, completed, hasAnyCode);
+                    String DBImgUrl = notion.getImgUrl();
+                    String imgStaticUrl = null;
+                    if (DBImgUrl != null) {
+                        imgStaticUrl = fileStorageService.getUrl(DBImgUrl);
+                    }
+
+                    return LearningNotionConverter.toNotionLResponse(notion, imgStaticUrl, notionCode, language, completed, hasAnyCode);
                 }).toList();
 
         return LearningNotionResponse.builder()

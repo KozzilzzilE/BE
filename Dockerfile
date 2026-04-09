@@ -1,0 +1,7 @@
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY build/libs/*SNAPSHOT.jar app.jar
+
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]

@@ -22,7 +22,7 @@ public class NotionCode extends BaseEntity {
     private Long id;
 
     @Lob
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)

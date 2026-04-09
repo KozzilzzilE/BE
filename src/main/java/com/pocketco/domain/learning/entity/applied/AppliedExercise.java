@@ -28,7 +28,7 @@ public class AppliedExercise extends BaseEntity {
     private String title;
 
     @Lob
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

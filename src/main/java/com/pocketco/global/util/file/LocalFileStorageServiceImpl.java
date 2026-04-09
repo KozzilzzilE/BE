@@ -49,4 +49,9 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
         // /static/** 로 노출되도록 매핑
         return publicBaseUrl + "/static/" + dir + "/" + filename;
     }
+
+    @Override
+    public String getUrl(String key) {
+        return key;
+    }
 }

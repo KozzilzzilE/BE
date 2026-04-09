@@ -20,7 +20,7 @@ public class UserCode extends BaseEntity {
     private Long id;
 
     @Lob
-    @Column(name = "code", nullable = false)
+    @Column(name = "code", columnDefinition = "TEXT", nullable = false)
     private String code;
 
     @ManyToOne(fetch = FetchType.LAZY)
