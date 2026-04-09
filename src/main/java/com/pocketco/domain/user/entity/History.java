@@ -21,7 +21,7 @@ public class History extends BaseEntity {
     private Long id;
 
     @Lob
-    @Column(name = "source_code", nullable = false)
+    @Column(name = "source_code", columnDefinition = "TEXT", nullable = false)
     private String sourceCode;
 
     @Enumerated(EnumType.STRING)
@@ -38,7 +38,7 @@ public class History extends BaseEntity {
     private AIReviewStatus aiStatus = AIReviewStatus.NOT_REQUESTED;
 
     @Lob
-    @Column(name = "ai_review")
+    @Column(name = "ai_review", columnDefinition = "TEXT")
     private String aiReview;
 
     @Column(name = "is_solution_viewed", nullable = false)

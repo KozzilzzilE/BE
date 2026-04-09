@@ -45,6 +45,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .addServersItem(new Server().url("http://localhost:8080")) // 추가적인 서버 URL 설정 가능
+                .addServersItem(new Server().url("http://15.164.136.153:8080")) // 배포 EC2 IP 추가
                 .info(info)
                 .addSecurityItem(securityRequirement)
                 .components(components);

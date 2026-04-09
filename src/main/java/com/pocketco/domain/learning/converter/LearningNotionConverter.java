@@ -6,14 +6,14 @@ import com.pocketco.domain.learning.entity.notion.Notion;
 import com.pocketco.domain.learning.entity.notion.NotionCode;
 
 public class LearningNotionConverter {
-    public static LearningNotion toNotionLResponse(Notion notion, NotionCode notionCode, String language, boolean completed, boolean hasAnyCode) {
+    public static LearningNotion toNotionLResponse(Notion notion, String imgStaticUrl, NotionCode notionCode, String language, boolean completed, boolean hasAnyCode) {
         LearningNotion.LearningNotionBuilder builder = LearningNotion.builder()
                 .notionId(notion.getId())
                 .pageNo(notion.getPageNo())
                 .title(notion.getTitle())
                 .point(notion.getPoint())
                 .detail(notion.getDetail())
-                .imgUrl(notion.getImgUrl())
+                .imgUrl(imgStaticUrl)
                 .notionCompleted(completed);
 
         // 개념 페이지에 코드 자체가 없을 때

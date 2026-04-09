@@ -31,6 +31,7 @@ public class Notion extends BaseEntity {
     private String point;
 
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String detail;
 
     @Column(name = "img_url")

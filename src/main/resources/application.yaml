@@ -1,14 +1,45 @@
-# 로컬용 application.yml
-
+# ===================================  공통 application.yml ===================================
 spring:
   profiles:
-    active: local
+    active: local   # 기본 실행은 local
   application:
     name: pocketco
-  # .env 파일 인식하게끔
+
+  # redis
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      password: ${REDIS_PASSWORD}
+
+# jwt
+jwt:
+  secret: ${JWT_SECRET}
+
+# swagger config
+springdoc:
+  packages-to-scan: com.pocketco
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+
+# fire base
+firebase:
+  credentials-path: ${FIREBASE_FILE_PATH}
+
+# judge0
+judge0:
+  base-url: ${JUDGE0_BASE_URL}
+  authn-token: ${JUDGE0_AUTHN_TOKEN}
+
+# ============================================ local ============================================
+---
+spring:
   config:
-    import: optional:file:.env[.properties]
-  # mysql
+    activate:
+      on-profile: local
+    import: optional:file:.env[.properties]     # .env 파일 인식
+
+  # mySQL
   datasource:
     url: jdbc:mysql://localhost:3306/pocketco?useSSL=false&allowPublicKeyRetrieval=true
     username: ${DB_USER}
@@ -19,34 +50,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-    show-sql: true
-    format_sql: true
-  #redis
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: 6379
-      password: ${REDIS_PASSWORD}
+        format_sql: false
 
-
-# jwt
-jwt:
-  secret: ${JWT_SECRET}                  # 필수(반드시 환경변수로만)
-
-# Swagger config
-springdoc:
-  packages-to-scan: com.pocketco
-  default-consumes-media-type: application/json;charset=UTF-8
-  default-produces-media-type: application/json;charset=UTF-8
-  swagger-ui:
-    path: /
-    disable-swagger-default-url: true
-    display-request-duration: true
-    operations-sorter: alpha
-
+# local 이미지 저장
 storage:
   local:
     base-dir: pocketco/uploads
@@ -54,10 +64,56 @@ storage:
 app:
   public-base-url: http://localhost:8080
 
-# fire base
-firebase:
-  credentials-path: ${FIREBASE_FILE_PATH}
+springdoc:
+  swagger-ui:
+    path: /
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
 
-# Judge0
-judge0:
-  base-url: ${JUDGE0_BASE_URL}
+# ============================================ prod ============================================
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # rds - mySQL
+  datasource:
+    url: jdbc:mysql://${RDS_ENDPOINT}:3306/pocketco?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # jpa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+
+  # aws
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+
+# s3
+storage:
+  s3:
+    bucket: ${S3_BUCKET}
+    region: ${AWS_REGION}
+    base-url: https://${S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com
+
+# swagger
+springdoc:
+  swagger-ui:
+    path: /
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+    enabled: true

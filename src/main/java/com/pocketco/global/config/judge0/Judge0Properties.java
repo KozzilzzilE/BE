@@ -11,4 +11,5 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class Judge0Properties {
     private String baseUrl;
+    private String authnToken;
 }

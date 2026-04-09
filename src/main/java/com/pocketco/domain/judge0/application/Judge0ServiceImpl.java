@@ -14,6 +14,7 @@ import com.pocketco.domain.user.exception.HistoryNotFoundException;
 import com.pocketco.domain.user.repository.Judge0TokenRepository;
 import com.pocketco.domain.user.repository.UserRepository;
 import com.pocketco.global.common.redis.RedisService;
+import com.pocketco.global.config.judge0.Judge0Properties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,11 +46,13 @@ public class Judge0ServiceImpl implements Judge0Service {
     private final HistoryRepository historyRepository;
     private final Judge0TokenRepository judge0TokenRepository;
     private final UserRepository userRepository;
+    private final Judge0Properties judge0Properties;
 
     @Override
     public List<Judge0LanguageResponse> getJudge0Languages() {
         String responseJson =  webClient.get()
                 .uri("/languages")
+                .header("X-Auth-Token", judge0Properties.getAuthnToken())
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
@@ -156,6 +159,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                             .path("/submissions/{token}")
                             .queryParam("fields", "stdin,stdout,status")
                             .build(token))
+                    .header("X-Auth-Token", judge0Properties.getAuthnToken())
                     .retrieve()
                     .bodyToMono(Judge0RunResultResponse.class)
                     .block();
@@ -254,6 +258,7 @@ public class Judge0ServiceImpl implements Judge0Service {
 
         return webClient.post()
                 .uri("/submissions/batch?wait=false")
+                .header("X-Auth-Token", judge0Properties.getAuthnToken())
                 .bodyValue(batchRequest)
                 .retrieve()
                 .bodyToFlux(Judge0TokenResponse.class)
@@ -278,6 +283,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                                 .path("/submissions/{token}")
                                 .queryParam("fields", "status")
                                 .build(token))
+                        .header("X-Auth-Token", judge0Properties.getAuthnToken())
                         .retrieve()
                         .bodyToMono(Judge0StatusResponse.class)
                         .block();

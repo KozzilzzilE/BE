@@ -22,7 +22,7 @@ public class AppliedCode extends BaseEntity {
     private Long id;
 
     @Lob
-    @Column(name = "code_template", nullable = false)
+    @Column(name = "code_template", columnDefinition = "TEXT", nullable = false)
     private String codeTemplate;
 
     @ManyToOne(fetch = FetchType.LAZY)
