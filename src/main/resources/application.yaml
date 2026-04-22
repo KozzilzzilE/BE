@@ -31,6 +31,16 @@ judge0:
   base-url: ${JUDGE0_BASE_URL}
   authn-token: ${JUDGE0_AUTHN_TOKEN}
 
+# health check
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 # ============================================ local ============================================
 ---
 spring:
