@@ -36,7 +36,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         // 2. 로그인, 회원가입, 스웨거는 하이패스!
-                        .requestMatchers("/api/v1/auths/**", "/swagger-ui/**", "/v3/api-docs/**",
+                        .requestMatchers("/api/v1/auths/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health",
                                 "/static/**", "/api/v1/languages/lists").permitAll()
                         // 3. 나머지는 무조건 '신분증(JWT)' 검사!
                         .anyRequest().authenticated()

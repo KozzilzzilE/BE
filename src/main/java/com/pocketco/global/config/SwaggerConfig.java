@@ -29,7 +29,7 @@ public class SwaggerConfig {
                 .title("pocketco API Document")
                 .version("1.0")
                 .description(
-                        "환영합니다! [pocketco]는 이동하는 시간에도 알고리즘 및 코딩 테스트 준비를 도와주는 모바일 앱입니다.\n"
+                        "환영합니다! [pocketco]는 이동하는 시간에도 당신의 주머니안에서 알고리즘 및 코딩 테스트 준비를 도와주는 모바일 앱입니다.\n"
                 );
 
         // JWT 인증 방식 설정
