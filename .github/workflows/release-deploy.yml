@@ -2,8 +2,8 @@ name: Release Deploy
 
 on:
   push:
-    branches:
-      - release
+    branches: [release]
+  workflow_dispatch:
 
 permissions:
   contents: read
