@@ -1,11 +1,9 @@
 name: Release Deploy
 
 on:
-  pull_request:
+  push:
     branches:
       - release
-    types:
-      - closed
 
 permissions:
   contents: read
@@ -17,9 +15,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: >
-      github.event.pull_request.merged == true &&
-      github.event.pull_request.base.ref == 'release'
     runs-on: ubuntu-latest
 
     env:
