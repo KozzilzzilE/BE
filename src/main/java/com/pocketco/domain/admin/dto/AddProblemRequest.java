@@ -12,5 +12,5 @@ public record AddProblemRequest(
         String lineSolution,
         String solutionText,
         List<AddTestCaseRequest> testCases,
-        List<AddSolutionCodeRequest> solutionCodes
+        List<AddLanguageSettingRequest> languageSettings
 ) {}
