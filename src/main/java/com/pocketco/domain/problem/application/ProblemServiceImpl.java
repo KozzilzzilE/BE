@@ -11,7 +11,9 @@ import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
+import com.pocketco.domain.user.entity.HistoryStatus;
 import com.pocketco.domain.user.exception.UserNotFoundException;
+import com.pocketco.domain.user.repository.BookmarkProblemRepository;
 import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final HistoryRepository historyRepository;
     private final UserRepository userRepository;
     private final TimeLimitRepository timeLimitRepository;
+    private final BookmarkProblemRepository bookmarkRepository;
 
     @Override
     public List<AddProblemResponse> addProblems(List<AddProblemRequest> requests) {
@@ -139,12 +142,18 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProblemDetailResponseDTO getProblemDetail(Long problemId) {
+    public ProblemDetailResponseDTO getProblemDetail(Long userId, Long problemId, String languageName) {
+        // 0. 사용자 조회
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
         // 1. 문제 엔티티 조회
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
 
-        // 2. 테스트 케이스 변환 (명세서대로 최대 2개만 추출)
+        // 2. 해당 언어가 허용 가능한 언어인지 -> 불가능하면 예외
+        Language language = languageService.findLanguageId(languageName);
+
+        // 3. 테스트 케이스 변환 (명세서대로 최대 2개만 추출)
         List<TestCaseDTO> testCaseDTOs = problem.getTestCases().stream()
                 .sorted(Comparator.comparing(TestCase::getId))
                 .limit(2)
@@ -154,17 +163,32 @@ public class ProblemServiceImpl implements ProblemService {
                         .build())
                 .toList();
 
-        System.out.println("--- [상세조회] 화면에 보여줄 테스트케이스 ---");
-        testCaseDTOs.forEach(tc -> System.out.println("입력: " + tc.input()));
+        // 4. 문제 정답 맞췄는지
+        boolean isCompleted = historyRepository.existsByUser_IdAndProblem_IdAndLanguage_IdAndStatus(userId, problemId, language.getId(), HistoryStatus.ACCEPTED);
 
-        // 3. 최종 DTO 조립
+        // 5. 해당 문제를 찜해놓은 사람 수
+        int bookmarkCount = bookmarkRepository.countByProblem_Id(problemId);
+
+        // 6. 사용자는 해당 문제를 찜했는지
+        boolean isBookmarked = bookmarkRepository.existsByUser_IdAndProblem_Id(userId, problemId);
+
+        // 7. 선택된 언어의 시간제한 (DB에 저장된 값이 없으면 기본 값 1.0 반환)
+        double timeLimitSec = timeLimitRepository.findByProblem_IdAndLanguage_Id(problemId, language.getId())
+                .map(t -> t.getTimeLimitMs() / 1000.0)
+                .orElse(1.0);
+
+        // 8. 최종 DTO 조립
         return ProblemDetailResponseDTO.builder()
-                .exerciseId(problem.getId())
+                .problemId(problem.getId())
                 .title(problem.getTitle())
                 .description(problem.getDescription())
                 .constraint(problem.getConstraints())
                 .testCases(testCaseDTOs)
-                .isCompleted(false) // 아직 연동 전이라 기본값 false
+                .isCompleted(isCompleted)
+                .bookmarkCount(bookmarkCount)
+                .isBookmark(isBookmarked)
+                .timeLimit(timeLimitSec)
+                .memoryLimit(256000)
                 .build();
     }
 
