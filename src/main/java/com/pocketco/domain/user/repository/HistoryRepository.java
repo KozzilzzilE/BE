@@ -13,6 +13,7 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     List<History> findTop100ByStatusOrderByCreatedAtDesc(HistoryStatus status);
     List<History> findByUser_IdAndProblem_IdOrderByCreatedAtDesc(Long userId, Long problem);
     boolean existsByUser_IdAndProblem_IdAndStatus(Long userId, Long problem, HistoryStatus status);
+    boolean existsByUser_IdAndProblem_IdAndLanguage_IdAndStatus(Long userId, Long problem, Long languageId, HistoryStatus status);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""

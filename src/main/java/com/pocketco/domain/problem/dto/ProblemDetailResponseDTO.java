@@ -5,10 +5,14 @@ import java.util.List;
 
 @Builder
 public record ProblemDetailResponseDTO(
-        Long exerciseId,
+        Long problemId,
         String title,
         String description,
         String constraint,
         List<TestCaseDTO> testCases,
-        Boolean isCompleted
+        boolean isCompleted,
+        Integer bookmarkCount,
+        boolean isBookmark,
+        Double timeLimit,
+        Integer memoryLimit
 ) {}
