@@ -246,6 +246,8 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .map(tc -> new Judge0IndividualRequest(
                         request.sourceCode(),
                         languageId,
+                        request.timeLimit(),
+                        256000,
                         tc.getInput(),
                         tc.getOutput()
                 ))

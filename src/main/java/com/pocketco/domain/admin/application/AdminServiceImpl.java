@@ -66,7 +66,7 @@ public class AdminServiceImpl implements AdminService {
         return appliedService.addApplied(requests);
     }
     @Override
-    public List<AddProblemResponse> addProblems(Long userId, List<AddProblemRequest> requests) {
+    public List<AddProblemResponse> addProblems(Long userId, AddProblemRequests requests) {
         validateAdmin(userId); // 관리자 확인 로직 재사용
         return problemService.addProblems(requests);
     }

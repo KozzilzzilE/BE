@@ -36,8 +36,8 @@ public class ProblemServiceImpl implements ProblemService {
     private final TimeLimitRepository timeLimitRepository;
 
     @Override
-    public List<AddProblemResponse> addProblems(List<AddProblemRequest> requests) {
-        return requests.stream().map(this::saveOne).toList();
+    public List<AddProblemResponse> addProblems(AddProblemRequests reqs) {
+        return reqs.requests().stream().map(this::saveOne).toList();
     }
 
     private AddProblemResponse saveOne(AddProblemRequest req) {
