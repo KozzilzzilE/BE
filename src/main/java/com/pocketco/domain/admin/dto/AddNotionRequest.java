@@ -33,5 +33,6 @@ public record AddNotionRequest(
 
         @Schema(description = "해당 페이지에 필요한 예제 코드들")
         @Valid
+        @NotEmpty
         List<AddNotionCodeRequest> codes
 ) {}

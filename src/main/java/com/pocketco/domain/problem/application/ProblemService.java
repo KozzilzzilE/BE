@@ -1,6 +1,7 @@
 package com.pocketco.domain.problem.application;
 
 import com.pocketco.domain.admin.dto.AddProblemRequest;
+import com.pocketco.domain.admin.dto.AddProblemRequests;
 import com.pocketco.domain.admin.dto.AddProblemResponse;
 import com.pocketco.domain.problem.dto.ProblemHistoryResponse;
 import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
@@ -10,7 +11,7 @@ import com.pocketco.domain.problem.dto.ProblemSolutionResponseDTO;
 import java.util.List;
 
 public interface ProblemService {
-    List<AddProblemResponse> addProblems(List<AddProblemRequest> requests);
+    List<AddProblemResponse> addProblems(AddProblemRequests reqs);
     ProblemListResponseDTO getProblemListByTopic(Long topicId);
     ProblemDetailResponseDTO getProblemDetail(Long problemId);
     ProblemSolutionResponseDTO getProblemSolution(Long problemId, String language);

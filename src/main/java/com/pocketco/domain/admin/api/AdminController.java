@@ -59,7 +59,7 @@ public class AdminController {
     @PostMapping("/problems/additions")
     public BaseResponse<List<AddProblemResponse>> addProblems(
             @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid List<AddProblemRequest> requests) { // @Valid로 검증 잊지 마세요!
+            @RequestBody @Valid AddProblemRequests requests) { // @Valid로 검증 잊지 마세요!
         List<AddProblemResponse> results = adminService.addProblems(userId, requests);
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_PROBLEM_SUCCESS, results);
     }
