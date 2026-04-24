@@ -10,5 +10,5 @@ public record AddProblemResponse(
         String difficulty,
         Integer difficultyOrder,
         Integer testCaseCount,
-        Integer solutionCodeCount
+        Integer languageSettingCount
 ) {}

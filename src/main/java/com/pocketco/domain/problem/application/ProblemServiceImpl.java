@@ -11,7 +11,6 @@ import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
-import com.pocketco.domain.user.entity.History;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.repository.UserRepository;
@@ -34,6 +33,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final LanguageService languageService;
     private final HistoryRepository historyRepository;
     private final UserRepository userRepository;
+    private final TimeLimitRepository timeLimitRepository;
 
     @Override
     public List<AddProblemResponse> addProblems(List<AddProblemRequest> requests) {
@@ -73,13 +73,23 @@ public class ProblemServiceImpl implements ProblemService {
 
         // 5. 모범 답안 일괄 저장
         Map<Long, Language> languageMap = languageService.validateAndGetLanguageMap(
-                req.solutionCodes().stream().map(AddSolutionCodeRequest::languageId).toList());
+                req.languageSettings().stream().map(AddLanguageSettingRequest::languageId).toList());
 
-        List<SolutionCode> codes = req.solutionCodes().stream()
+        List<SolutionCode> codes = req.languageSettings().stream()
                 .map(sc -> SolutionCode.builder()
                         .problem(saved).language(languageMap.get(sc.languageId())).code(sc.code()).build())
                 .toList();
         solutionCodeRepository.saveAll(codes);
+
+        // 6. 시간 제한 일괄 저장
+        List<TimeLimit> timeLimits = req.languageSettings().stream()
+                .map(t -> TimeLimit.builder()
+                        .problem(saved)
+                        .language(languageMap.get(t.languageId()))
+                        .timeLimitMs(t.timeLimitMs())
+                        .build())
+                .toList();
+        timeLimitRepository.saveAll(timeLimits);
 
         return AddProblemResponse.builder()
                 .problemId(saved.getId())
@@ -88,7 +98,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .difficulty(saved.getDifficulty())
                 .difficultyOrder(saved.getDifficultyOrder())
                 .testCaseCount(testCases.size())
-                .solutionCodeCount(codes.size())
+                .languageSettingCount(codes.size())
                 .build();
     }
     @Override
