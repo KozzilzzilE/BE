@@ -1,6 +1,11 @@
 package com.pocketco.global.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pocketco.domain.user.entity.Role;
+import com.pocketco.global.common.code.status.ErrorStatus;
+import com.pocketco.global.common.response.BaseResponse;
 import com.pocketco.global.util.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +29,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter; // 하은님이 만든 보안 요원
     private final CorsConfigurationSource corsConfigurationSource;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,16 +39,52 @@ public class SecurityConfig {
 
                 // 1. JWT를 사용하니까 서버가 세션을 기억하지 않게 설정 (매우 중요!)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 2. JWT 에러 예외처리 핸들러
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String jwtException = (String) request.getAttribute("jwt_exception");
 
+                            ErrorStatus errorStatus;
+
+                            if ("TOKEN_EXPIRED".equals(jwtException)) {
+                                errorStatus = ErrorStatus.EXPIRED_ACCESS_TOKEN;
+                            } else if ("INVALID_TOKEN".equals(jwtException)) {
+                                errorStatus = ErrorStatus.INVALID_ACCESS_TOKEN;
+                            } else {
+                                errorStatus = ErrorStatus.MISSING_ACCESS_TOKEN;
+                            }
+
+                            response.setStatus(errorStatus.getHttpStatus().value());
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            BaseResponse<?> body =
+                                    BaseResponse.onFailure(errorStatus, request.getRequestURI());
+
+                            response.getWriter().write(objectMapper.writeValueAsString(body));
+                        })
+
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            ErrorStatus errorStatus = ErrorStatus._FORBIDDEN;
+
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            BaseResponse<?> body =
+                                    BaseResponse.onFailure(errorStatus, request.getRequestURI());
+
+                            response.getWriter().write(objectMapper.writeValueAsString(body));
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
-                        // 2. 로그인, 회원가입, 스웨거는 하이패스!
+                        .requestMatchers("/api/v1/admins/**").hasRole(Role.ADMIN.name())
+                        // 3. 로그인, 회원가입, 스웨거는 하이패스!
                         .requestMatchers("/api/v1/auths/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health",
                                 "/static/**", "/api/v1/languages/lists").permitAll()
-                        // 3. 나머지는 무조건 '신분증(JWT)' 검사!
+                        // 4. 나머지는 무조건 '신분증(JWT)' 검사!
                         .anyRequest().authenticated()
                 )
 
-                // 🛡️ 4. 하은님이 만든 JWT 필터를 보안 검사기(UsernamePasswordAuthenticationFilter) 앞에 배치!
+                // 🛡️ 5. 하은님이 만든 JWT 필터를 보안 검사기(UsernamePasswordAuthenticationFilter) 앞에 배치!
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

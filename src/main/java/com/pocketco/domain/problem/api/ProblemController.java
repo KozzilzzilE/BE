@@ -21,12 +21,13 @@ public class ProblemController {
 
     @GetMapping("/{problemId}")
     public BaseResponse<ProblemDetailResponseDTO> getProblemDetail(
-            @PathVariable(name = "problemId") Long problemId) {
+            @AuthenticationPrincipal Long userId,
+            @PathVariable(name = "problemId") Long problemId,
+            @RequestParam(name = "language") String language) {
 
-        return BaseResponse.onSuccess(
-                SuccessStatus.PROBLEM_DETAIL_GET_SUCCESS,
-                problemService.getProblemDetail(problemId)
-        );
+        ProblemDetailResponseDTO result = problemService.getProblemDetail(userId, problemId, language);
+
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_DETAIL_GET_SUCCESS, result);
     }
 
     @GetMapping("/{problemId}/solutions")

@@ -2,6 +2,7 @@ package com.pocketco.global.util.security;
 
 import com.pocketco.global.util.jwt.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -36,29 +37,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String auth = req.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (auth == null || auth.isBlank()) {
+            req.setAttribute("jwt_exception", "TOKEN_MISSING");
+        } else if (!auth.startsWith("Bearer ")) {
+            req.setAttribute("jwt_exception", "INVALID_TOKEN");
+        }
+
         if (auth != null && auth.startsWith("Bearer ")) {
-            String token = auth.substring(7);
-            try {
-                Jws<Claims> jws = jwt.parse(token);
+            String token = auth.substring(7).trim();
+            if (token.isBlank()) {
+                req.setAttribute("jwt_exception", "TOKEN_MISSING");
+                SecurityContextHolder.clearContext();
+            } else {
+                try {
+                    Jws<Claims> jws = jwt.parse(token);
 
-                Long userId = Long.valueOf(jws.getBody().getSubject());
-                String role = (String) jws.getBody().get("role"); // 토큰에 role 넣으셨죠
+                    Long userId = Long.valueOf(jws.getBody().getSubject());
+                    String role = (String) jws.getBody().get("role"); // 토큰에 role 넣으셨죠
 
-                // 1) 이후 컨트롤러에서 @RequestAttribute 쓰려면 계속 세팅
-                req.setAttribute("userId", userId);
+                    // 1) 이후 컨트롤러에서 @RequestAttribute 쓰려면 계속 세팅
+                    req.setAttribute("userId", userId);
 
-                // 2) 스프링 시큐리티가 인식할 인증객체 세팅 (여기가 핵심)
-                List<GrantedAuthority> authorities =
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                    // 2) 스프링 시큐리티가 인식할 인증객체 세팅 (여기가 핵심)
+                    List<GrantedAuthority> authorities =
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, authorities);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userId, null, authorities);
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            } catch (JwtException e) {
-                SecurityContextHolder.clearContext(); // 토큰 문제면 인증 제거
+                } catch (ExpiredJwtException e) {
+                    req.setAttribute("jwt_exception", "TOKEN_EXPIRED");
+                    SecurityContextHolder.clearContext(); // 토큰 문제면 인증 제거
+                } catch (JwtException e) {
+                    req.setAttribute("jwt_exception", "INVALID_TOKEN");
+                    SecurityContextHolder.clearContext();
+                }
             }
         }
         chain.doFilter(req, res);

@@ -7,6 +7,7 @@ import com.pocketco.domain.judge0.dto.SubmissionResponse;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
 import com.pocketco.global.common.code.status.SuccessStatus;
 import com.pocketco.global.common.response.BaseResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class Judge0Controller {
     public BaseResponse<List<Map<String, String>>> runCode(
             @PathVariable Long problemId,
             @RequestParam String language,
-            @RequestBody CodeSubmitRequest request) {
+            @RequestBody @Valid CodeSubmitRequest request) {
 
         List<String> tokens = judge0Service.runCode(problemId, language, request);
 
@@ -41,7 +42,7 @@ public class Judge0Controller {
             @AuthenticationPrincipal Long userId,
             @PathVariable Long problemId,
             @RequestParam String language,
-            @RequestBody CodeSubmitRequest request) {
+            @RequestBody @Valid CodeSubmitRequest request) {
 
         SubmissionResponse result = judge0Service.submitCode(userId, problemId, language, request);
 

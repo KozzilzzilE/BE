@@ -13,7 +13,15 @@ import org.hibernate.annotations.ColumnDefault;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "user_problem_histories")
+@Table(
+        name = "user_problem_histories",
+        indexes = {
+                @Index(
+                        name = "idx_history_user_problem_language_status",
+                        columnList = "user_id, problem_id, language_id, status"
+                )
+        }
+)
 public class History extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
