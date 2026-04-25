@@ -14,9 +14,9 @@ import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.exception.HistoryNotFoundException;
 import com.pocketco.domain.user.repository.Judge0TokenRepository;
 import com.pocketco.domain.user.repository.UserRepository;
-import com.pocketco.global.config.judge0.Judge0Properties;
 import com.pocketco.global.util.judge0.Judge0Client;
 import com.pocketco.global.util.judge0.Judge0SlotLimiter;
+import com.pocketco.global.util.judge0.Judge0SubmitDispatcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,8 @@ import com.pocketco.domain.problem.repository.ProblemRepository;
 import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.domain.problem.repository.TestCaseRepository;
 import com.pocketco.domain.problem.exception.ProblemHandler;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 
 import java.util.List;
@@ -46,9 +48,9 @@ public class Judge0ServiceImpl implements Judge0Service {
     private final HistoryRepository historyRepository;
     private final Judge0TokenRepository judge0TokenRepository;
     private final UserRepository userRepository;
-    private final Judge0Properties judge0Properties;
     private final Judge0SlotLimiter judge0SlotLimiter;
     private final Judge0Client judge0Client;
+    private final Judge0SubmitDispatcher judge0SubmitDispatcher;
 
     @Override
     public List<Judge0LanguageResponse> getJudge0Languages() {
@@ -107,6 +109,12 @@ public class Judge0ServiceImpl implements Judge0Service {
                     .build();
             judge0TokenRepository.save(judge0Token);
         }
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() { judge0SubmitDispatcher.triggerAsync(); }
+        });
 
         return SubmissionResponse.builder()
                 .historyId(savedHistory.getId())
@@ -187,9 +195,10 @@ public class Judge0ServiceImpl implements Judge0Service {
                     .build();
         }
 
-        int total = tokens.size();
-        long done = tokens.stream().filter(t -> t.getStatusId() >= 3).count();
-        double progress = (done * 100.0) / total;
+        double progress = tokens.stream()
+                .mapToDouble(t -> tokenProgress(t.getStatusId()))
+                .average()
+                .orElse(0.0);
 
         return SubmissionResultResponse.builder()
                 .success(false)
@@ -197,6 +206,15 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .message("채점중입니다...")
                 .progress(progress)
                 .build();
+    }
+
+    private double tokenProgress(int statusId) {
+        if (statusId == 0) return 0.0;      // 생성
+        if (statusId == 15) return 15.0;    // 제출 준비
+        if (statusId == 1) return 25.0;     // Judge0 queue 여기서 오래 걸림
+        if (statusId == 2) return 70.0;     // 실행
+        if (statusId >= 3) return 100.0;    // 완료
+        return 0.0;
     }
 
     private List<String> fetchRealTokensFromJudge0(Long problemId, int languageCode, CodeSubmitRequest request, boolean isSampleOnly) {
