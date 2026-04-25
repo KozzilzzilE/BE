@@ -25,7 +25,7 @@ public class HistoryServiceImpl implements HistoryService {
 
     @Override
     public void syncProcessingHistories() {
-        List<History> historyList = historyRepository.findTop100ByStatusOrderByCreatedAtDesc(HistoryStatus.PROCESSING);
+        List<History> historyList = historyRepository.findTop30ByStatusOrderByCreatedAtAsc(HistoryStatus.PROCESSING);
 
         for (History history : historyList) {
             try {
@@ -34,6 +34,11 @@ public class HistoryServiceImpl implements HistoryService {
                     log.info("스케줄링) DB에 저장된 토큰이 없는 기록입니다. history id {}", history.getId());
                     continue;
                 }
+                boolean hasNotSubmitted = tokens.stream()
+                        .anyMatch(t -> t.getToken() == null
+                                || t.getToken().isBlank() || t.getStatusId() == 0 || t.getStatusId() == 9);
+                if (hasNotSubmitted) continue;
+
                 List<String> tokenStrings = tokens.stream()
                         .map(Judge0Token::getToken)
                         .toList();

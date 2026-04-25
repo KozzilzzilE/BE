@@ -1,6 +1,7 @@
 package com.pocketco.domain.user.entity;
 
 import com.pocketco.domain.baseEntity.BaseEntity;
+import com.pocketco.domain.problem.entity.TestCase;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,7 @@ public class Judge0Token extends BaseEntity {
     @Column(name = "token_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String token;
 
     @Column(name = "status_id", nullable = false)
@@ -26,4 +27,8 @@ public class Judge0Token extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "history_id", nullable = false)
     private History history;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_case_id", nullable = false)
+    private TestCase testCase;
 }

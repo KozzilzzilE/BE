@@ -4,6 +4,5 @@ import lombok.Builder;
 
 @Builder
 public record SubmissionResponse(
-        Long historyId,
-        String submissionId
+        Long historyId
 ) { }
