@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 public class HistoryScheduler {
     private final HistoryService historyService;
 
-    @Scheduled(fixedDelay = 10000)
+    // 10초
+    @Scheduled(fixedDelay = 1200)
     public void syncHistory() {
         historyService.syncProcessingHistories();
     }

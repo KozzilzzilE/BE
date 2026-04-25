@@ -7,21 +7,22 @@ import com.pocketco.domain.judge0.dto.Judge0LanguageExternal;
 import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.domain.judge0.dto.CodeSubmitRequest;
 import com.pocketco.domain.problem.entity.Problem;
+import com.pocketco.domain.problem.entity.TestCase;
 import com.pocketco.domain.user.entity.*;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.exception.HistoryNotFoundException;
 import com.pocketco.domain.user.repository.Judge0TokenRepository;
 import com.pocketco.domain.user.repository.UserRepository;
-import com.pocketco.global.common.redis.RedisService;
 import com.pocketco.global.config.judge0.Judge0Properties;
+import com.pocketco.global.util.judge0.Judge0Client;
+import com.pocketco.global.util.judge0.Judge0SlotLimiter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
 
-import java.util.UUID;
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
@@ -37,26 +38,21 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class Judge0ServiceImpl implements Judge0Service {
-    private final WebClient webClient;
     private final TestCaseRepository testCaseRepository;
-    private final RedisService redisService;
     private final LanguageRepository languageRepository;
     private final ProblemRepository problemRepository;
     private final HistoryRepository historyRepository;
     private final Judge0TokenRepository judge0TokenRepository;
     private final UserRepository userRepository;
     private final Judge0Properties judge0Properties;
+    private final Judge0SlotLimiter judge0SlotLimiter;
+    private final Judge0Client judge0Client;
 
     @Override
     public List<Judge0LanguageResponse> getJudge0Languages() {
-        String responseJson =  webClient.get()
-                .uri("/languages")
-                .header("X-Auth-Token", judge0Properties.getAuthnToken())
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        return parseLanguages(responseJson);
+        return parseLanguages(judge0Client.getLanguagesJson());
     }
 
     @Override
@@ -67,11 +63,12 @@ public class Judge0ServiceImpl implements Judge0Service {
         }
 
         // 2. 언어 존재 확인
-        int languageId = languageRepository.findByName(language)
+        int languageCode = languageRepository.findByName(language)
                 .map(Language::getCode)
                 .orElseThrow(LanguageNotFoundException::new);
 
-        return fetchRealTokensFromJudge0(problemId, languageId, request, true);
+        return judge0SlotLimiter.runSlot(() ->
+                fetchRealTokensFromJudge0(problemId, languageCode, request, true));
     }
 
 
@@ -80,12 +77,6 @@ public class Judge0ServiceImpl implements Judge0Service {
         User me = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
         Language language = languageRepository.findByName(languageName).orElseThrow(LanguageNotFoundException::new);
-        int languageId = language.getCode();
-
-        List<String> realTokens = fetchRealTokensFromJudge0(problemId, languageId, request, false);
-
-        String submissionId = UUID.randomUUID().toString();
-        redisService.saveTokens(submissionId, realTokens);
 
         // 단 하나라도 정답을 맞춘 적이 있다면 isSolved == true 값 저장
         boolean isSolved = historyRepository.existsByUser_IdAndProblem_IdAndStatus(userId, problemId, HistoryStatus.ACCEPTED);
@@ -105,18 +96,20 @@ public class Judge0ServiceImpl implements Judge0Service {
 
         History savedHistory = historyRepository.save(newHistory);
 
-        for (String token : realTokens) {
+        List<TestCase> testCases = testCaseRepository.findByProblemId(problemId);
+
+        for (TestCase tc : testCases) {
             Judge0Token judge0Token = Judge0Token.builder()
-                    .token(token)
-                    .statusId(1)
+                    .token(null)
+                    .statusId(0)
                     .history(savedHistory)
+                    .testCase(tc)
                     .build();
             judge0TokenRepository.save(judge0Token);
         }
 
         return SubmissionResponse.builder()
                 .historyId(savedHistory.getId())
-                .submissionId(submissionId)
                 .build();
     }
 
@@ -154,15 +147,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                     .build();
         }
         try {
-            Judge0RunResultResponse response = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/submissions/{token}")
-                            .queryParam("fields", "stdin,stdout,status")
-                            .build(token))
-                    .header("X-Auth-Token", judge0Properties.getAuthnToken())
-                    .retrieve()
-                    .bodyToMono(Judge0RunResultResponse.class)
-                    .block();
+            Judge0RunResultResponse response = judge0Client.getRunResult(token);
 
             if (response == null) {
                 return CodeRunResultResponse.builder()
@@ -180,95 +165,60 @@ public class Judge0ServiceImpl implements Judge0Service {
     }
 
     @Override
-    public SubmissionResultResponse getSubmitResult(Long historyId, String submissionId) {
+    public SubmissionResultResponse getSubmitResult(Long historyId) {
         History history = historyRepository.findById(historyId).orElseThrow(HistoryNotFoundException::new);
         // 이미 채점이 완료되어 DB에 저장되어 있으면 채점이 완료 된 상태로 반환
         if (history.getStatus() != HistoryStatus.PROCESSING) {
             return SubmissionResultResponse.builder()
                     .success(true)
                     .status(history.getStatus())
-                    .message("채점이 이미 완료되었습니다.")
+                    .message("채점이 완료되었습니다.")
+                    .progress(100)
                     .build();
         }
 
-        List<String> tokens = redisService.getTokens(submissionId);
-        // redis에서 token을 못가져왔을 때
-        if (tokens == null || tokens.isEmpty()) {
+        List<Judge0Token> tokens = judge0TokenRepository.findByHistory_Id(historyId);
+        if (tokens.isEmpty()) {
             return SubmissionResultResponse.builder()
                     .success(false)
                     .status(history.getStatus())
-                    .message("submissionId로 토큰을 얻어오지 못했습니다.")
+                    .message("채점 작업이 없습니다.")
+                    .progress(0)
                     .build();
         }
 
-        Judge0ResultResponse response = getJudge0ResultStatus(tokens);
-
-        boolean allDone = response.allDone();
-        HistoryStatus newStatus = response.newStatus();
-
-        if (!allDone) {
-            return SubmissionResultResponse.builder()
-                    .success(false)
-                    .status(HistoryStatus.PROCESSING)
-                    .message("채점중입니다...")
-                    .build();
-        }
-
-        int updated = historyRepository.updateStatus(historyId, newStatus);
-
-        // 스케줄러에 의해 이미 업데이트 된 경우
-        if (updated == 0) {
-            newStatus = historyRepository.findById(historyId).orElseThrow(HistoryNotFoundException::new).getStatus();
-        }
-        if (updated == 1) {
-            redisService.deleteTokens(submissionId);
-        }
+        int total = tokens.size();
+        long done = tokens.stream().filter(t -> t.getStatusId() >= 3).count();
+        double progress = (done * 100.0) / total;
 
         return SubmissionResultResponse.builder()
-                .success(true)
-                .status(newStatus)
-                .message("채점이 완료되었습니다.")
+                .success(false)
+                .status(HistoryStatus.PROCESSING)
+                .message("채점중입니다...")
+                .progress(progress)
                 .build();
     }
 
-    private List<String> fetchRealTokensFromJudge0(Long problemId, int languageId, CodeSubmitRequest request, boolean isSampleOnly) {
-        //String encodedSource = Base64.getEncoder()
-                //.encodeToString(request.sourceCode().getBytes(StandardCharsets.UTF_8));
-
-        List<com.pocketco.domain.problem.entity.TestCase> testCases;
+    private List<String> fetchRealTokensFromJudge0(Long problemId, int languageCode, CodeSubmitRequest request, boolean isSampleOnly) {
+        List<TestCase> testCases;
 
         if (isSampleOnly) {
             testCases = testCaseRepository.findTop2ByProblemIdOrderByIdAsc(problemId);
         } else {
             testCases = testCaseRepository.findByProblemId(problemId);
         }
-        List<Judge0IndividualRequest> individualRequests = testCases.stream()
-                .map(tc -> new Judge0IndividualRequest(
-                        request.sourceCode(),
-                        languageId,
-                        request.timeLimit(),
-                        256000,
-                        tc.getInput(),
-                        tc.getOutput()
-                ))
+        return testCases.stream()
+                .map(tc -> submitSingleTestCase(languageCode, request, tc))
                 .toList();
+    }
 
-        Judge0BatchRequest batchRequest = new Judge0BatchRequest(individualRequests);
-        // fetchRealTokensFromJudge0 로직 안에 추가
-        System.out.println("--- [실행/제출] Judge0로 보내는 테스트케이스 ---");
-        testCases.forEach(tc -> System.out.println("ID: " + tc.getId() + " | 입력: " + tc.getInput()));
+    private String submitSingleTestCase(int languageCode, CodeSubmitRequest request, TestCase tc) {
+        Judge0IndividualRequest judge0Request = new Judge0IndividualRequest(
+                request.sourceCode(), languageCode, request.timeLimit(), 256000, tc.getInput(), tc.getOutput());
 
-        return webClient.post()
-                .uri("/submissions/batch?wait=false")
-                .header("X-Auth-Token", judge0Properties.getAuthnToken())
-                .bodyValue(batchRequest)
-                .retrieve()
-                .bodyToFlux(Judge0TokenResponse.class)
-                .collectList()
-                .block()
-                .stream()
-                .map(Judge0TokenResponse::token)
-                .toList();
+        Judge0TokenResponse response = judge0Client.submit(judge0Request);
+
+        return response.token();
     }
 
     @Override
@@ -280,15 +230,7 @@ public class Judge0ServiceImpl implements Judge0Service {
 
         for (String token : tokens) {
             try {
-                Judge0StatusResponse response = webClient.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/submissions/{token}")
-                                .queryParam("fields", "status")
-                                .build(token))
-                        .header("X-Auth-Token", judge0Properties.getAuthnToken())
-                        .retrieve()
-                        .bodyToMono(Judge0StatusResponse.class)
-                        .block();
+                Judge0StatusResponse response = judge0Client.getStatus(token);
 
                 if (response == null || response.status() == null) {
                     allDone = false;
@@ -300,7 +242,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                     allDone = false;
                     continue;
                 }
-                newStatus = calcStatus(newStatus, statusId);
+                newStatus = calcStatus(newStatus, statusId, response);
                 judge0TokenRepository.updateStatusWithToken(token, statusId);
             } catch (Exception e) {
                 allDone = false;
@@ -313,7 +255,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .build();
     }
 
-    private HistoryStatus calcStatus(HistoryStatus nowStatus, int statusId) {
+    private HistoryStatus calcStatus(HistoryStatus nowStatus, int statusId, Judge0StatusResponse response) {
         HistoryStatus status = nowStatus;
 
         // 상태 업데이트 우선 순위 => Compilation Error > System Error == Runtime Error > Time Limit Exceeded > Wrong Answer > Accepted
@@ -329,7 +271,13 @@ public class Judge0ServiceImpl implements Judge0Service {
         if (statusId == 5) {
             if (nowStatus != HistoryStatus.RUNTIME_ERROR
                     && nowStatus != HistoryStatus.COMPILATION_ERROR) {
-                status = HistoryStatus.TIME_LIMIT_EXCEEDED;
+                double ratio = response.time() / response.wallTime();
+                if (ratio > 2.5){                // time과 wallTime의 비율이 이상하면 Judge0 시스템 오류로 판단
+                    status = HistoryStatus.SYSTEM_ERROR;
+                }
+                else {
+                    status = HistoryStatus.TIME_LIMIT_EXCEEDED;
+                }
             }
         }
         if (statusId == 6) {

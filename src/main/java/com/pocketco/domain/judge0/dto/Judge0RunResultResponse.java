@@ -6,5 +6,7 @@ public record Judge0RunResultResponse(
         String stdin,
         String stdout,
         @JsonProperty("status")
-        StatusDetail status
+        StatusDetail status,
+        @JsonProperty("time")
+        Double time
 ) { }

@@ -3,7 +3,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record Judge0IndividualRequest(
         @JsonProperty("source_code") String sourceCode,
-        @JsonProperty("language_id") Integer languageId,
+        @JsonProperty("language_id") Integer languageCode,
         @JsonProperty("cpu_time_limit") Double cpuTimeLimit,
         @JsonProperty("memory_limit") Integer memoryLimit,
         @JsonProperty("stdin") String stdin,
