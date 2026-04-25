@@ -7,5 +7,8 @@ public record ProblemResponseDTO(
         Long problemId,
         String title,
         String difficulty,
-        String difficultyDisplayName
+        String difficultyDisplayName,
+        Boolean isCompleted,
+        Integer bookmarkCount,
+        Boolean isBookmark
 ) {}
