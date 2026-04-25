@@ -9,6 +9,7 @@ import com.pocketco.global.common.code.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +35,11 @@ public class TopicController {
 
     @Operation(summary = "선택한 주제의 문제 목록 조회", description = "특정 알고리즘 주제에 속한 문제들을 난이도순으로 조회합니다.")
     @GetMapping("/{topicId}/problems") // 주소: /api/v1/topics/{topicId}/problems
-    public BaseResponse<ProblemListResponseDTO> getProblemsByTopic(@PathVariable(name = "topicId") Long topicId) {
+    public BaseResponse<ProblemListResponseDTO> getProblemsByTopic(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable(name = "topicId") Long topicId) {
 
-        ProblemListResponseDTO response = problemService.getProblemListByTopic(topicId);
+        ProblemListResponseDTO response = problemService.getProblemListByTopic(topicId, userId);
 
         // 성공 응답 반환
         return BaseResponse.onSuccess(SuccessStatus.TOPIC_GET_PROBLEMS_SUCCESS, response);

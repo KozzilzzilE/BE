@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface ProblemService {
     List<AddProblemResponse> addProblems(AddProblemRequests reqs);
-    ProblemListResponseDTO getProblemListByTopic(Long topicId);
+    ProblemListResponseDTO getProblemListByTopic(Long topicId, Long userId);
     ProblemDetailResponseDTO getProblemDetail(Long userId, Long problemId, String languageName);
     ProblemSolutionResponseDTO getProblemSolution(Long problemId, String language);
     List<ProblemHistoryResponse> getProblemHistory(Long userId, Long problemId);
