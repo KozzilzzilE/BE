@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 @Component
 public class Judge0SlotLimiter {
     private final Semaphore runSemaphore = new Semaphore(2, true);          // run 용 2개
-    private final Semaphore submitSemaphore = new Semaphore(2, true);       // submit 용 2개
+    private final Semaphore submitSemaphore = new Semaphore(3, true);       // submit 용 3개
 
     public <T> T runSlot(Supplier<T> task) {
         return execute(runSemaphore, task);

@@ -34,7 +34,7 @@ public class Judge0Client {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/submissions/{token}")
-                        .queryParam("fields", "*")
+                        .queryParam("fields", "status,time,wall_time")
                         .build(token))
                 .header("X-Auth-Token", judge0Properties.getAuthnToken())
                 .retrieve()
@@ -46,7 +46,7 @@ public class Judge0Client {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/submissions/{token}")
-                        .queryParam("fields", "stdin,stdout,status")
+                        .queryParam("fields", "stdin,stdout,status,time")
                         .build(token))
                 .header("X-Auth-Token", judge0Properties.getAuthnToken())
                 .retrieve()

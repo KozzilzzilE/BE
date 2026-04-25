@@ -242,7 +242,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                     allDone = false;
                     continue;
                 }
-                newStatus = calcStatus(newStatus, statusId);
+                newStatus = calcStatus(newStatus, statusId, response);
                 judge0TokenRepository.updateStatusWithToken(token, statusId);
             } catch (Exception e) {
                 allDone = false;
@@ -255,7 +255,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .build();
     }
 
-    private HistoryStatus calcStatus(HistoryStatus nowStatus, int statusId) {
+    private HistoryStatus calcStatus(HistoryStatus nowStatus, int statusId, Judge0StatusResponse response) {
         HistoryStatus status = nowStatus;
 
         // 상태 업데이트 우선 순위 => Compilation Error > System Error == Runtime Error > Time Limit Exceeded > Wrong Answer > Accepted
@@ -271,7 +271,13 @@ public class Judge0ServiceImpl implements Judge0Service {
         if (statusId == 5) {
             if (nowStatus != HistoryStatus.RUNTIME_ERROR
                     && nowStatus != HistoryStatus.COMPILATION_ERROR) {
-                status = HistoryStatus.TIME_LIMIT_EXCEEDED;
+                double ratio = response.time() / response.wallTime();
+                if (ratio > 2.5){                // time과 wallTime의 비율이 이상하면 Judge0 시스템 오류로 판단
+                    status = HistoryStatus.SYSTEM_ERROR;
+                }
+                else {
+                    status = HistoryStatus.TIME_LIMIT_EXCEEDED;
+                }
             }
         }
         if (statusId == 6) {
