@@ -106,7 +106,9 @@ public class ProblemServiceImpl implements ProblemService {
     }
     @Override
     @Transactional(readOnly = true)
-    public ProblemListResponseDTO getProblemListByTopic(Long topicId) {
+    public ProblemListResponseDTO getProblemListByTopic(Long topicId, Long userId) {
+        // 사용자가 있는지 먼저 확인
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         // 해당 토픽이 존재하는지 먼저 확인 -> 없으면 에러남
         if (!topicRepository.existsById(topicId)) {
@@ -124,11 +126,21 @@ public class ProblemServiceImpl implements ProblemService {
                         default -> "미정";
                     };
 
+                    // 맞췄던 문제인지 (언어 무관)
+                    boolean isCompleted = historyRepository.existsByUser_IdAndProblem_IdAndStatus(userId, problem.getId(), HistoryStatus.ACCEPTED);
+                    // 해당 문제를 찜해놓은 사람 수
+                    int bookmarkCount = bookmarkRepository.countByProblem_Id(problem.getId());
+                    // 사용자는 해당 문제를 찜했는지
+                    boolean isBookmarked = bookmarkRepository.existsByUser_IdAndProblem_Id(userId, problem.getId());
+
                     return ProblemResponseDTO.builder()
                             .problemId(problem.getId())
                             .title(problem.getTitle())
                             .difficulty(problem.getDifficulty())
                             .difficultyDisplayName(displayName)
+                            .isCompleted(isCompleted)
+                            .bookmarkCount(bookmarkCount)
+                            .isBookmark(isBookmarked)
                             .build();
                 })
                 .toList();
@@ -163,8 +175,8 @@ public class ProblemServiceImpl implements ProblemService {
                         .build())
                 .toList();
 
-        // 4. 문제 정답 맞췄는지
-        boolean isCompleted = historyRepository.existsByUser_IdAndProblem_IdAndLanguage_IdAndStatus(userId, problemId, language.getId(), HistoryStatus.ACCEPTED);
+        // 4. 문제 정답 맞췄는지 (언어 무관)
+        boolean isCompleted = historyRepository.existsByUser_IdAndProblem_IdAndStatus(userId, problemId, HistoryStatus.ACCEPTED);
 
         // 5. 해당 문제를 찜해놓은 사람 수
         int bookmarkCount = bookmarkRepository.countByProblem_Id(problemId);

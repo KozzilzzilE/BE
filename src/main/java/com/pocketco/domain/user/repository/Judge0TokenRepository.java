@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface Judge0TokenRepository extends JpaRepository<Judge0Token, Long> {
     List<Judge0Token> findByHistory_Id(Long historyId);
-    List<Judge0Token> findTop2ByStatusIdOrderByCreatedAtAsc(int statusId);
+    List<Judge0Token> findTop5ByStatusIdOrderByCreatedAtAsc(int statusId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""

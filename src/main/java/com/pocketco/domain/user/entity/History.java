@@ -17,8 +17,8 @@ import org.hibernate.annotations.ColumnDefault;
         name = "user_problem_histories",
         indexes = {
                 @Index(
-                        name = "idx_history_user_problem_language_status",
-                        columnList = "user_id, problem_id, language_id, status"
+                        name = "idx_history_user_problem_status",
+                        columnList = "user_id, problem_id, status"
                 )
         }
 )
