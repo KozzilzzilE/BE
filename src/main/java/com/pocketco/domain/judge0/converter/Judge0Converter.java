@@ -11,6 +11,7 @@ public class Judge0Converter {
                 .status(judge0.status().description())
                 .input(judge0.stdin())
                 .output(judge0.stdout())
+                .time(judge0.time())
                 .build();
     }
 }

@@ -57,9 +57,8 @@ public class Judge0Controller {
 
     @GetMapping("/submissions/{historyId}/results")
     public BaseResponse<SubmissionResultResponse> submitResult(
-            @PathVariable("historyId") Long historyId,
-            @RequestParam("submissionId") String submissionId) {
-        SubmissionResultResponse result = judge0Service.getSubmitResult(historyId, submissionId);
+            @PathVariable("historyId") Long historyId) {
+        SubmissionResultResponse result = judge0Service.getSubmitResult(historyId);
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_SUBMIT_RESULT_SUCCESS, result);
     }
 }

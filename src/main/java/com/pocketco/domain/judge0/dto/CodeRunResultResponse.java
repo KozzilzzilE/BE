@@ -7,5 +7,6 @@ public record CodeRunResultResponse(
         int statusId,
         String status,
         String input,
-        String output
+        String output,
+        double time
 ) { }

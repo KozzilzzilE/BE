@@ -8,5 +8,6 @@ import java.util.List;
 public record SubmissionResultResponse(
         boolean success,
         HistoryStatus status,
-        String message
+        String message,
+        double progress
 ) { }
