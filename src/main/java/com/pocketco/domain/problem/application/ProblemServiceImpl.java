@@ -7,6 +7,8 @@ import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemResponseDTO;
 import com.pocketco.domain.problem.dto.*;
 import com.pocketco.domain.problem.entity.*;
+import com.pocketco.domain.problem.exception.ProblemLanguageSolutionCodeAlreadyExistsException;
+import com.pocketco.domain.problem.exception.ProblemLanguageTimeLimitAlreadyExistsException;
 import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
@@ -163,7 +165,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
 
         // 2. 해당 언어가 허용 가능한 언어인지 -> 불가능하면 예외
-        Language language = languageService.findLanguageId(languageName);
+        Language language = languageService.findLanguageWithName(languageName);
 
         // 3. 테스트 케이스 변환 (명세서대로 최대 2개만 추출)
         List<TestCaseDTO> testCaseDTOs = problem.getTestCases().stream()
@@ -233,6 +235,41 @@ public class ProblemServiceImpl implements ProblemService {
                 .stream()
                 .map(ProblemHistoryResponse::from)
                 .toList();
+    }
+
+    @Override
+    public AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req) {
+        // 해당 문제가 DB에 있는지
+        Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+        // 해당 언어가 DB에 있는지
+        Language language = languageService.findLanguageWithId(languageId);
+
+        if (timeLimitRepository.existsByProblem_IdAndLanguage_Id(problemId, languageId)) {
+            throw new ProblemLanguageTimeLimitAlreadyExistsException();
+        }
+        if (solutionCodeRepository.existsByProblem_IdAndLanguage_Id(problemId, languageId)) {
+            throw new ProblemLanguageSolutionCodeAlreadyExistsException();
+        }
+
+        TimeLimit timeLimit = TimeLimit.builder()
+                .timeLimitMs(req.timeLimitMs())
+                .problem(problem)
+                .language(language)
+                .build();
+        TimeLimit savedTimeLimit = timeLimitRepository.save(timeLimit);
+
+        SolutionCode solutionCode = SolutionCode.builder()
+                .code(req.solutionCode())
+                .problem(problem)
+                .language(language)
+                .build();
+        SolutionCode savedSolutionCode = solutionCodeRepository.save(solutionCode);
+
+        return AddProblemLanguageSettingResponse.builder()
+                .languageName(language.getName())
+                .timeLimitId(savedTimeLimit.getId())
+                .solutionCodeId(savedSolutionCode.getId())
+                .build();
     }
 }
 

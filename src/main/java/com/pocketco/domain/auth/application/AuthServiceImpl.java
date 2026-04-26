@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthAlreadyUsedException();
         }
 
-        Language language = languageService.findLanguageId(request.language());
+        Language language = languageService.findLanguageWithName(request.language());
 
         User user = User.builder()
                 .email(request.email())
