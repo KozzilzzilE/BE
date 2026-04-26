@@ -4,4 +4,5 @@ import com.pocketco.domain.problem.entity.SolutionCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SolutionCodeRepository extends JpaRepository<SolutionCode, Long> {
+    boolean existsByProblem_IdAndLanguage_Id(Long problemId, Long languageId);
 }

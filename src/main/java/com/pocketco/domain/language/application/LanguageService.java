@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface LanguageService {
-    Language findLanguageId(String name);
+    Language findLanguageWithName(String name);
+    Language findLanguageWithId(Long id);
     AddLanguageResponse addLanguage(AddLanguageRequest req);
     Map<Long, Language> validateAndGetLanguageMap(List<Long> languageIds);
     LanguageListResponse getLanguagesList();

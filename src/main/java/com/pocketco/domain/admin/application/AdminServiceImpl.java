@@ -55,4 +55,9 @@ public class AdminServiceImpl implements AdminService {
     public List<Judge0LanguageResponse> judge0Languages(Long userId) {
         return judge0Service.getJudge0Languages();
     }
+
+    @Override
+    public AddProblemLanguageSettingResponse addProblemLanguageSetting(Long userId, Long problemId, Long languageId, AddProblemLanguageSettingRequest request) {
+        return problemService.addProblemLanguageSetting(problemId, languageId, request);
+    }
 }

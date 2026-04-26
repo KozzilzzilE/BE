@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface TimeLimitRepository extends JpaRepository<TimeLimit, Long> {
     Optional<TimeLimit> findByProblem_IdAndLanguage_Id(Long problemId, Long languageId);
+    boolean existsByProblem_IdAndLanguage_Id(Long problemId, Long languageId);
 }
