@@ -69,4 +69,14 @@ public class AdminController {
         List<Judge0LanguageResponse> results = adminService.judge0Languages(userId);
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_JUDGE0_LANGUAGE_LIST, results);
     }
+
+    @PostMapping("/problems/{problemId}/language-settings/{languageId}/additions")
+    public BaseResponse<AddProblemLanguageSettingResponse> addProblemLanguageSetting(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable(name = "problemId") Long problemId,
+            @PathVariable(name = "languageId") Long languageId,
+            @RequestBody @Valid AddProblemLanguageSettingRequest requests) {
+        AddProblemLanguageSettingResponse result = adminService.addProblemLanguageSetting(userId, problemId, languageId, requests);
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_PROBLEM_LANGUAGE_SETTING_SUCCESS, result);
+    }
 }

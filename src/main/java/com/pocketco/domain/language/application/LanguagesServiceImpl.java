@@ -30,8 +30,14 @@ public class LanguagesServiceImpl implements LanguageService {
     }
 
     @Override
-    public Language findLanguageId(String name) {
+    public Language findLanguageWithName(String name) {
         Language language = languageRepository.findByName(name).orElseThrow(LanguageNotFoundException::new);
+        return language;
+    }
+
+    @Override
+    public Language findLanguageWithId(Long id) {
+        Language language = languageRepository.findById(id).orElseThrow(LanguageNotFoundException::new);
         return language;
     }
 
