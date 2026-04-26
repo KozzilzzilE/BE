@@ -10,5 +10,5 @@ public record MainScreenResponse(
         Long languageId,
         String languageName,
         List<MainScreenCalenderDTO> totalSolvedDetails,
-        Long thisMonthSolvedCount
+        Integer thisMonthSolvedCount
 ) { }

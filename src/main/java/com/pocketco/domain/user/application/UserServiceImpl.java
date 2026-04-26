@@ -49,9 +49,7 @@ public class UserServiceImpl implements UserService {
                 .atDay(1)
                 .atStartOfDay(kst)
                 .toInstant();
-        System.out.println("시작 : " + startUtc + "끝 : " + endUtc);
-
-        long monthSoledCount = historyRepository.countThisMonthSolved(userId, HistoryStatus.ACCEPTED, startUtc, endUtc);
+        int monthSoledCount = historyRepository.countThisMonthSolved(userId, HistoryStatus.ACCEPTED, startUtc, endUtc);
 
         return MainScreenResponse.builder()
                 .nickname(user.getNickname())

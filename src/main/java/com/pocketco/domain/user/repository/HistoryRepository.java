@@ -47,7 +47,7 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
           and h.createdAt >= :startUtc
           and h.createdAt < :endUtc
     """)
-    long countThisMonthSolved(
+    int countThisMonthSolved(
             @Param("userId") Long userId,
             @Param("status") HistoryStatus status,
             @Param("startUtc") Instant startUtc,
