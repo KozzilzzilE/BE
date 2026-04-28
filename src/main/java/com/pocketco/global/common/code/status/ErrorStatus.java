@@ -58,7 +58,9 @@ public enum ErrorStatus implements BaseErrorCode {
     // --- history & token ---
     HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "HISTORY_404_NOT_FOUND", "제출 기록을 찾을 수 없습니다."),
 
-
+    // --- Bookmark ---
+    BOOKMARK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "BOOKMARK_400", "이미 찜한 문제입니다."),
+    BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "BOOKMARK_404", "찜한 기록을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

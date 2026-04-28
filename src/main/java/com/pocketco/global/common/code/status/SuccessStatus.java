@@ -53,6 +53,11 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_SUBMIT_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_205", "문제 코드 채점 결과 조회 성공"),
     PROBLEM_SUBMIT_HISTORY_SUCCESS(HttpStatus.OK, "PROBLEM_206", "사용자 문제 제출 기록 조회 성공"),
 
+    // bookmark
+    BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "BOOKMARK_200", "찜 추가 성공"),
+    BOOKMARK_DELETE_SUCCESS(HttpStatus.OK, "BOOKMARK_201", "찜 삭제 성공"),
+    BOOKMARK_LIST_SUCCESS(HttpStatus.OK, "BOOKMARK_202", "찜 목록 조회 성공"),
+
 
     // token
     //TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "TOKEN_200", "토큰이 정상적으로 재발급되었습니다.")
