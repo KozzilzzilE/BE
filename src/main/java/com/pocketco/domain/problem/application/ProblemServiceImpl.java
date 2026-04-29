@@ -7,6 +7,9 @@ import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemResponseDTO;
 import com.pocketco.domain.problem.dto.*;
 import com.pocketco.domain.problem.entity.*;
+import com.pocketco.domain.problem.exception.ProblemAlreadyExistsException;
+import com.pocketco.domain.problem.exception.ProblemNotFoundException;
+import com.pocketco.domain.problem.exception.ProblemSolutionNotFoundException;
 import com.pocketco.domain.problem.exception.ProblemLanguageSolutionCodeAlreadyExistsException;
 import com.pocketco.domain.problem.exception.ProblemLanguageTimeLimitAlreadyExistsException;
 import com.pocketco.domain.problem.repository.*;
@@ -21,8 +24,6 @@ import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.pocketco.global.common.code.status.ErrorStatus;
-import com.pocketco.domain.problem.exception.ProblemHandler;
 
 import java.util.*;
 
@@ -48,7 +49,7 @@ public class ProblemServiceImpl implements ProblemService {
     private AddProblemResponse saveOne(AddProblemRequest req) {
         // 1.  저장하기 전에 제목이 이미 있는지 확인
         if (problemRepository.existsByTitle(req.title())) {
-            throw new ProblemHandler(ErrorStatus.PROBLEM_ALREADY_EXISTS);
+            throw new ProblemAlreadyExistsException();
         }
 
         // 2. 토픽 확인
@@ -162,7 +163,7 @@ public class ProblemServiceImpl implements ProblemService {
 
         // 1. 문제 엔티티 조회
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+                .orElseThrow(ProblemNotFoundException::new);
 
         // 2. 해당 언어가 허용 가능한 언어인지 -> 불가능하면 예외
         Language language = languageService.findLanguageWithName(languageName);
@@ -211,12 +212,12 @@ public class ProblemServiceImpl implements ProblemService {
     public ProblemSolutionResponseDTO getProblemSolution(Long problemId, String languageName) {
 
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+                .orElseThrow(ProblemNotFoundException::new);
 
         SolutionCode solutionCode = problem.getSolutionCodes().stream()
                 .filter(sc -> sc.getLanguage().getName().equalsIgnoreCase(languageName))
                 .findFirst()
-                .orElseThrow(() -> new ProblemHandler(ErrorStatus.SOLUTION_NOT_FOUND));
+                .orElseThrow(ProblemSolutionNotFoundException::new);
 
         return ProblemSolutionResponseDTO.builder()
                 .lineSolution(problem.getLineSolution())
@@ -229,7 +230,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public List<ProblemHistoryResponse> getProblemHistory(Long userId, Long problemId) {
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        problemRepository.findById(problemId).orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+        problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
 
         return historyRepository.findByUser_IdAndProblem_IdOrderByCreatedAtDesc(userId, problemId)
                 .stream()
@@ -240,7 +241,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req) {
         // 해당 문제가 DB에 있는지
-        Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+        Problem problem = problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
         // 해당 언어가 DB에 있는지
         Language language = languageService.findLanguageWithId(languageId);
 

@@ -21,9 +21,9 @@ public class CSProblem extends BaseEntity {
     private String question;
 
     @Column(nullable = false)
-    private boolean answer;
+    private Boolean answer;
 
     @Lob
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String explanation;
 }

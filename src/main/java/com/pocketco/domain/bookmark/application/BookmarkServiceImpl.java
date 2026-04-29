@@ -6,12 +6,11 @@ import com.pocketco.domain.bookmark.exception.BookmarkAlreadyExistsException;
 import com.pocketco.domain.bookmark.exception.BookmarkNotFoundException;
 import com.pocketco.domain.bookmark.repository.BookmarkRepository;
 import com.pocketco.domain.problem.entity.Problem;
-import com.pocketco.domain.problem.exception.ProblemHandler;
+import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.problem.repository.ProblemRepository;
 import com.pocketco.domain.user.entity.User;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.UserRepository;
-import com.pocketco.global.common.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +29,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     public BookmarkToggleResponse addBookmark(Long userId, Long problemId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+                .orElseThrow(ProblemNotFoundException::new);
 
         if (bookmarkRepository.existsByUserAndProblem(user, problem)) {
             throw new BookmarkAlreadyExistsException();
@@ -43,7 +42,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     public BookmarkToggleResponse removeBookmark(Long userId, Long problemId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+                .orElseThrow(ProblemNotFoundException::new);
 
         Bookmark bookmark = bookmarkRepository.findByUserAndProblem(user, problem)
                 .orElseThrow(BookmarkNotFoundException::new);
