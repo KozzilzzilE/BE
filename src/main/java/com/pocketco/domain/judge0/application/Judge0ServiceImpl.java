@@ -8,6 +8,7 @@ import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.domain.judge0.dto.CodeSubmitRequest;
 import com.pocketco.domain.problem.entity.Problem;
 import com.pocketco.domain.problem.entity.TestCase;
+import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.user.entity.*;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.HistoryRepository;
@@ -61,7 +62,7 @@ public class Judge0ServiceImpl implements Judge0Service {
     public List<String> runCode(Long problemId, String language, CodeSubmitRequest request) {
         // 1. 문제 존재 확인
         if (!problemRepository.existsById(problemId)) {
-            throw new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND);
+            throw new ProblemNotFoundException();
         }
 
         // 2. 언어 존재 확인
@@ -77,7 +78,7 @@ public class Judge0ServiceImpl implements Judge0Service {
     @Override
     public SubmissionResponse submitCode(Long userId, Long problemId, String languageName, CodeSubmitRequest request) {
         User me = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+        Problem problem = problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
         Language language = languageRepository.findByName(languageName).orElseThrow(LanguageNotFoundException::new);
 
         // 단 하나라도 정답을 맞춘 적이 있다면 isSolved == true 값 저장
