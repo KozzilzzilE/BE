@@ -24,8 +24,6 @@ import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.pocketco.global.common.code.status.ErrorStatus;
-import com.pocketco.domain.problem.exception.ProblemHandler;
 
 import java.util.*;
 

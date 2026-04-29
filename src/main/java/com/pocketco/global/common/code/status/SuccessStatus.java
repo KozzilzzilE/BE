@@ -33,6 +33,7 @@ public enum SuccessStatus implements BaseCode {
     ADMIN_ADD_PROBLEM_SUCCESS(HttpStatus.CREATED, "ADMIN_204", "코딩 문제 추가 성공했습니다."),
     ADMIN_JUDGE0_LANGUAGE_LIST(HttpStatus.OK, "ADMIN_205", "judge0 언어 목록 조회 성공했습니다."),
     ADMIN_ADD_PROBLEM_LANGUAGE_SETTING_SUCCESS(HttpStatus.CREATED, "ADMIN_206", "코딩 문제 언어 설정 추가 성공했습니다."),
+    ADMIN_ADD_CS_PROBLEM_SUCCESS(HttpStatus.CREATED, "ADMIN_209", "CS 문제 추가 성공했습니다."),
 
     // topic
     TOPIC_LIST_SUCCESS(HttpStatus.OK, "TOPIC_200", "알고리즘 목록 조회 성공"),
@@ -58,6 +59,8 @@ public enum SuccessStatus implements BaseCode {
     BOOKMARK_DELETE_SUCCESS(HttpStatus.OK, "BOOKMARK_201", "찜 삭제 성공"),
     BOOKMARK_LIST_SUCCESS(HttpStatus.OK, "BOOKMARK_202", "찜 목록 조회 성공"),
 
+    // cs problem
+    CS_PROBLEM_RANDOM_LIST_SUCCESS(HttpStatus.OK, "CS_PROBLEM_200", "CS 문제 랜덤 조회 성공"),
 
     // token
     //TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "TOKEN_200", "토큰이 정상적으로 재발급되었습니다.")

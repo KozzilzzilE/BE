@@ -27,11 +27,9 @@ import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
-import com.pocketco.domain.language.exception.LanguageNotFoundException; // 👈 추가!
+import com.pocketco.domain.language.exception.LanguageNotFoundException;
 import com.pocketco.domain.problem.repository.ProblemRepository;
-import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.domain.problem.repository.TestCaseRepository;
-import com.pocketco.domain.problem.exception.ProblemHandler;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
