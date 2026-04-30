@@ -2,6 +2,7 @@ package com.pocketco.domain.judge0.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pocketco.domain.aiCodeReview.entity.AICodeReviewStatus;
 import com.pocketco.domain.judge0.converter.Judge0Converter;
 import com.pocketco.domain.judge0.dto.Judge0LanguageExternal;
 import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
@@ -87,7 +88,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .sourceCode(request.sourceCode())
                 .status(HistoryStatus.PROCESSING)
                 .isSolved(isSolved)
-                .aiStatus(AIReviewStatus.NOT_REQUESTED)
+                .aiStatus(AICodeReviewStatus.NOT_REQUESTED)
                 .isSolutionViewed(false)
                 .isGoalMet(false)
                 .user(me)

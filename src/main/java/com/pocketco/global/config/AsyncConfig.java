@@ -16,7 +16,18 @@ public class AsyncConfig {
         executor.setCorePoolSize(1);
         executor.setMaxPoolSize(2);
         executor.setQueueCapacity(10);
-        executor.setThreadNamePrefix("judge0-trigger");
+        executor.setThreadNamePrefix("judge0-trigger-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "aiExecutor")
+    public Executor aiExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(20);
+        executor.setThreadNamePrefix("ai-review-");
         executor.initialize();
         return executor;
     }
