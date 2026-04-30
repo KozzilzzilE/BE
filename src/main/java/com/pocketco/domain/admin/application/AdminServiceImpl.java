@@ -1,6 +1,7 @@
 package com.pocketco.domain.admin.application;
 
 import com.pocketco.domain.admin.dto.*;
+import com.pocketco.domain.csProblem.application.CSProblemService;
 import com.pocketco.domain.judge0.application.Judge0Service;
 import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.domain.language.application.LanguageService;
@@ -26,6 +27,7 @@ public class AdminServiceImpl implements AdminService {
     private final AppliedService appliedService;
     private final ProblemService problemService;
     private final Judge0Service judge0Service;
+    private final CSProblemService csProblemService;
 
     @Override
     public AddLanguageResponse addLanguage(Long userId, AddLanguageRequest request) {
@@ -59,5 +61,10 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public AddProblemLanguageSettingResponse addProblemLanguageSetting(Long userId, Long problemId, Long languageId, AddProblemLanguageSettingRequest request) {
         return problemService.addProblemLanguageSetting(problemId, languageId, request);
+    }
+
+    @Override
+    public Long addCSProblem(Long userId, AddCSProblemRequest request) {
+        return csProblemService.addCSProblem(request);
     }
 }

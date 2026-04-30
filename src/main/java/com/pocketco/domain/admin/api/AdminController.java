@@ -79,4 +79,12 @@ public class AdminController {
         AddProblemLanguageSettingResponse result = adminService.addProblemLanguageSetting(userId, problemId, languageId, requests);
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_PROBLEM_LANGUAGE_SETTING_SUCCESS, result);
     }
+
+    @PostMapping("/cs-problems/additions")
+    public BaseResponse<Long> addCsProblem(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid AddCSProblemRequest request) {
+        Long result = adminService.addCSProblem(userId, request);
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_CS_PROBLEM_SUCCESS, result);
+    }
 }

@@ -15,4 +15,5 @@ public interface AdminService {
     List<AddProblemResponse> addProblems(Long userId, AddProblemRequests requests);
     List<Judge0LanguageResponse> judge0Languages(Long userId);
     AddProblemLanguageSettingResponse addProblemLanguageSetting(Long userId, Long problemId, Long languageId, AddProblemLanguageSettingRequest request);
+    Long addCSProblem(Long userId, AddCSProblemRequest request);
 }

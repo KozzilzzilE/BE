@@ -1,5 +1,6 @@
 package com.pocketco.domain.user.entity;
 
+import com.pocketco.domain.aiCodeReview.entity.AICodeReviewStatus;
 import com.pocketco.domain.baseEntity.BaseEntity;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.problem.entity.Problem;
@@ -43,11 +44,19 @@ public class History extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "ai_status", nullable = false)
     @ColumnDefault("'NOT_REQUESTED'")
-    private AIReviewStatus aiStatus = AIReviewStatus.NOT_REQUESTED;
+    private AICodeReviewStatus aiStatus = AICodeReviewStatus.NOT_REQUESTED;
 
     @Lob
     @Column(name = "ai_review", columnDefinition = "TEXT")
     private String aiReview;
+
+    @Lob
+    @Column(name = "ai_improvement", columnDefinition = "TEXT")
+    private String aiImprovement;
+
+    @Lob
+    @Column(name = "ai_code", columnDefinition = "TEXT")
+    private String aiCode;
 
     @Column(name = "is_solution_viewed", nullable = false)
     @ColumnDefault("false")

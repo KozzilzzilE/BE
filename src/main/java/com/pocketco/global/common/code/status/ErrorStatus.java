@@ -57,6 +57,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // --- history & token ---
     HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "HISTORY_404_NOT_FOUND", "제출 기록을 찾을 수 없습니다."),
+    HISTORY_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "HISTORY_401_UNAUTHORIZED", "제출 기록에 접근할 수 없습니다."),
 
     // --- Bookmark ---
     BOOKMARK_ALREADY_EXISTS(HttpStatus.CONFLICT, "BOOKMARK_409_ALREADY_EXISTS", "이미 찜한 문제입니다."),
