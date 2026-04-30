@@ -14,7 +14,8 @@ public enum SuccessStatus implements BaseCode {
 
     // auth
     AUTH_REGISTER_SUCCESS(HttpStatus.OK, "AUTH_300", "회원가입 성공했습니다."),
-    AUTH_LOGIN_SUCCESS(HttpStatus.OK, "AUTH_301", "로컬 로그인 성공했습니다."),
+    AUTH_LOGIN_SUCCESS(HttpStatus.OK, "AUTH_301", "로그인 성공했습니다."),
+    AUTH_LOGOUT_SUCCESS(HttpStatus.OK, "AUTH_302", "로그아웃 성공했습니다."),
 
     // user
     USER_PROFILE_SUCCESS(HttpStatus.OK, "USER_300", "로그인한 유저 조회 성공했습니다."),
