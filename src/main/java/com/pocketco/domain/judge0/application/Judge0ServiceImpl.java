@@ -2,12 +2,14 @@ package com.pocketco.domain.judge0.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pocketco.domain.aiCodeReview.entity.AICodeReviewStatus;
 import com.pocketco.domain.judge0.converter.Judge0Converter;
 import com.pocketco.domain.judge0.dto.Judge0LanguageExternal;
 import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.domain.judge0.dto.CodeSubmitRequest;
 import com.pocketco.domain.problem.entity.Problem;
 import com.pocketco.domain.problem.entity.TestCase;
+import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.user.entity.*;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.HistoryRepository;
@@ -26,11 +28,9 @@ import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
-import com.pocketco.domain.language.exception.LanguageNotFoundException; // 👈 추가!
+import com.pocketco.domain.language.exception.LanguageNotFoundException;
 import com.pocketco.domain.problem.repository.ProblemRepository;
-import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.domain.problem.repository.TestCaseRepository;
-import com.pocketco.domain.problem.exception.ProblemHandler;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -61,7 +61,7 @@ public class Judge0ServiceImpl implements Judge0Service {
     public List<String> runCode(Long problemId, String language, CodeSubmitRequest request) {
         // 1. 문제 존재 확인
         if (!problemRepository.existsById(problemId)) {
-            throw new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND);
+            throw new ProblemNotFoundException();
         }
 
         // 2. 언어 존재 확인
@@ -77,7 +77,7 @@ public class Judge0ServiceImpl implements Judge0Service {
     @Override
     public SubmissionResponse submitCode(Long userId, Long problemId, String languageName, CodeSubmitRequest request) {
         User me = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Problem problem = problemRepository.findById(problemId).orElseThrow(() -> new ProblemHandler(ErrorStatus.PROBLEM_NOT_FOUND));
+        Problem problem = problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
         Language language = languageRepository.findByName(languageName).orElseThrow(LanguageNotFoundException::new);
 
         // 단 하나라도 정답을 맞춘 적이 있다면 isSolved == true 값 저장
@@ -88,7 +88,7 @@ public class Judge0ServiceImpl implements Judge0Service {
                 .sourceCode(request.sourceCode())
                 .status(HistoryStatus.PROCESSING)
                 .isSolved(isSolved)
-                .aiStatus(AIReviewStatus.NOT_REQUESTED)
+                .aiStatus(AICodeReviewStatus.NOT_REQUESTED)
                 .isSolutionViewed(false)
                 .isGoalMet(false)
                 .user(me)

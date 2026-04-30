@@ -1,6 +1,5 @@
-package com.pocketco.global.util.security;
+package com.pocketco.global.util.jwt;
 
-import com.pocketco.global.util.jwt.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -29,8 +28,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final JwtTokenProvider jwt;
+    private final InMemoryTokenBlacklist blacklist;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
@@ -49,12 +48,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token.isBlank()) {
                 req.setAttribute("jwt_exception", "TOKEN_MISSING");
                 SecurityContextHolder.clearContext();
+            } else if (blacklist.isContain(token)) {
+                // 블랙리스트 먼저 확인
+                req.setAttribute("jwt_exception", "INVALID_TOKEN");
+                SecurityContextHolder.clearContext();
             } else {
                 try {
                     Jws<Claims> jws = jwt.parse(token);
 
                     Long userId = Long.valueOf(jws.getBody().getSubject());
-                    String role = (String) jws.getBody().get("role"); // 토큰에 role 넣으셨죠
+                    String role = (String) jws.getBody().get("role");
 
                     // 1) 이후 컨트롤러에서 @RequestAttribute 쓰려면 계속 세팅
                     req.setAttribute("userId", userId);

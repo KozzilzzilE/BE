@@ -31,6 +31,13 @@ judge0:
   base-url: ${JUDGE0_BASE_URL}
   authn-token: ${JUDGE0_AUTHN_TOKEN}
 
+# AI - gemini
+gemini:
+  api-key: ${GEMINI_API_KEY}
+  model: ${GEMINI_MODEL}
+  base-url: https://generativelanguage.googleapis.com/v1beta
+  timeout: 15s
+
 # health check
 management:
   endpoints:
@@ -40,6 +47,11 @@ management:
   endpoint:
     health:
       show-details: never
+
+# log
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 # ============================================ local ============================================
 ---
@@ -60,7 +72,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect

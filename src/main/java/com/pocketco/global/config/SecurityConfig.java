@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pocketco.domain.user.entity.Role;
 import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.global.common.response.BaseResponse;
-import com.pocketco.global.util.security.JwtAuthenticationFilter;
+import com.pocketco.global.util.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -78,7 +78,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/admins/**").hasRole(Role.ADMIN.name())
                         // 3. 로그인, 회원가입, 스웨거는 하이패스!
-                        .requestMatchers("/api/v1/auths/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health",
+                        .requestMatchers("/api/v1/auths/signup", "/api/v1/auths/login",
+                                "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health",
                                 "/static/**", "/api/v1/languages/lists").permitAll()
                         // 4. 나머지는 무조건 '신분증(JWT)' 검사!
                         .anyRequest().authenticated()
