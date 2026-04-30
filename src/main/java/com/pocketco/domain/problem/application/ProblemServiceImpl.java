@@ -24,6 +24,8 @@ import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
@@ -154,21 +156,59 @@ public class ProblemServiceImpl implements ProblemService {
                 .problems(resultDTOs)
                 .build();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, Pageable pageable) {
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        Page<Problem> problemPage = problemRepository.findAll(pageable);
+
+        List<ProblemAllResponseDTO.ProblemItemDTO> problemItems = problemPage.getContent().stream()
+                .map(problem -> {
+                    String diff = problem.getDifficulty() != null ? problem.getDifficulty().toUpperCase() : "NONE";
+                    String difficultyDisplayName = switch (diff) {
+                        case "EASY" -> "쉬움";
+                        case "NORMAL" -> "보통";
+                        case "HARD" -> "어려움";
+                        default -> "미정";
+                    };
+
+                    return ProblemAllResponseDTO.ProblemItemDTO.builder()
+                            .problemId(problem.getId())
+                            .title(problem.getTitle())
+                            .difficulty(problem.getDifficulty())
+                            .difficultyDisplayName(difficultyDisplayName)
+                            .bookmarkCount((long) bookmarkRepository.countByProblem_Id(problem.getId()))
+                            .isBookmark(bookmarkRepository.existsByUser_IdAndProblem_Id(userId, problem.getId()))
+                            .isCompleted(historyRepository.existsByUser_IdAndProblem_IdAndStatus(userId, problem.getId(), HistoryStatus.ACCEPTED))
+                            .topicName(problem.getTopic() != null ? problem.getTopic().getName() : "미분류")
+                            .topicDisplayName(problem.getTopic() != null ? problem.getTopic().getDisplayName() : "미정")
+                            .build();
+                }).toList();
+
+        return ProblemAllResponseDTO.ProblemListResponse.builder()
+                .problemList(problemItems)
+                .page(problemPage.getNumber())
+                .size(problemPage.getSize())
+                .totalPage(problemPage.getTotalPages())
+                .totalElements(problemPage.getTotalElements())
+                .build();
+    }
 
     @Override
     @Transactional(readOnly = true)
     public ProblemDetailResponseDTO getProblemDetail(Long userId, Long problemId, String languageName) {
-        // 0. 사용자 조회
+        // 1. 사용자 조회
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        // 1. 문제 엔티티 조회
+        // 2. 문제 엔티티 조회
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(ProblemNotFoundException::new);
 
-        // 2. 해당 언어가 허용 가능한 언어인지 -> 불가능하면 예외
+        // 3. 해당 언어 조회
         Language language = languageService.findLanguageWithName(languageName);
 
-        // 3. 테스트 케이스 변환 (명세서대로 최대 2개만 추출)
+        // 4. 테스트 케이스 (최대 2개만)
         List<TestCaseDTO> testCaseDTOs = problem.getTestCases().stream()
                 .sorted(Comparator.comparing(TestCase::getId))
                 .limit(2)
@@ -178,21 +218,17 @@ public class ProblemServiceImpl implements ProblemService {
                         .build())
                 .toList();
 
-        // 4. 문제 정답 맞췄는지 (언어 무관)
+        // 5. 부가 정보 조회 (성공 여부, 북마크 수, 내 북마크 여부)
         boolean isCompleted = historyRepository.existsByUser_IdAndProblem_IdAndStatus(userId, problemId, HistoryStatus.ACCEPTED);
-
-        // 5. 해당 문제를 찜해놓은 사람 수
         int bookmarkCount = bookmarkRepository.countByProblem_Id(problemId);
-
-        // 6. 사용자는 해당 문제를 찜했는지
         boolean isBookmarked = bookmarkRepository.existsByUser_IdAndProblem_Id(userId, problemId);
 
-        // 7. 선택된 언어의 시간제한 (DB에 저장된 값이 없으면 기본 값 1.0 반환)
+        // 6. 시간 제한 (ms -> sec 변환)
         double timeLimitSec = timeLimitRepository.findByProblem_IdAndLanguage_Id(problemId, language.getId())
                 .map(t -> t.getTimeLimitMs() / 1000.0)
                 .orElse(1.0);
 
-        // 8. 최종 DTO 조립
+        // 7. 최종 DTO 조립
         return ProblemDetailResponseDTO.builder()
                 .problemId(problem.getId())
                 .title(problem.getTitle())
@@ -238,6 +274,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .toList();
     }
 
+
     @Override
     public AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req) {
         // 해당 문제가 DB에 있는지
@@ -272,6 +309,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .solutionCodeId(savedSolutionCode.getId())
                 .build();
     }
+
 }
 
 
