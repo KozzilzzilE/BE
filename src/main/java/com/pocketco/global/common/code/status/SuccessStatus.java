@@ -62,6 +62,10 @@ public enum SuccessStatus implements BaseCode {
     // cs problem
     CS_PROBLEM_RANDOM_LIST_SUCCESS(HttpStatus.OK, "CS_PROBLEM_200", "CS 문제 랜덤 조회 성공"),
 
+    // ai code review
+    AI_CODE_REVIEW_POST_SUCCESS(HttpStatus.OK, "AI_CODE_REVIEW_200", "AI 코드 리뷰 요청을 성공했습니다."),
+    AI_CODE_REVIEW_GET_SUCCESS(HttpStatus.OK, "AI_CODE_REVIEW_201", "AI 코드 리뷰 상태 및 결과 조회를 성공했습니다")
+
     // token
     //TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "TOKEN_200", "토큰이 정상적으로 재발급되었습니다.")
 
