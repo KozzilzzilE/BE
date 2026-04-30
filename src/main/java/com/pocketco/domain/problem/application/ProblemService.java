@@ -17,5 +17,5 @@ public interface ProblemService {
     ProblemSolutionResponseDTO getProblemSolution(Long problemId, String language);
     List<ProblemHistoryResponse> getProblemHistory(Long userId, Long problemId);
     AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req);
-    ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, Pageable pageable);
+    ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable);
 }
