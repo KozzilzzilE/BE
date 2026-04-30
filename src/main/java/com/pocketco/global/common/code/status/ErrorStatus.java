@@ -54,6 +54,7 @@ public enum ErrorStatus implements BaseErrorCode {
     SOLUTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PROBLEM_404_SOLUTION_CODE_NOT_FOUND", "해당 언어의 모범 답안이 없습니다."),
     PROBLEM_LANGUAGE_TIME_LIMIT_ALREADY_EXISTS(HttpStatus.CONFLICT, "PROBLEM_409_LANGUAGE_TIME_LIMIT_ALREADY_EXISTS", "해당 문제에 해당 언어의 시간 제한 데이터는 이미 존재 합니다."),
     PROBLEM_LANGUAGE_SOLUTION_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "PROBLEM_409_LANGUAGE_SOLUTION_CODE_ALREADY_EXISTS", "해당 문제에 해당 언어의 모범 코드는 이미 존재 합니다."),
+    PROBLEM_INVALID_DIFFICULTY(HttpStatus.BAD_REQUEST, "PROBLEM_410_INVALID_DIFFICULTY", "잘못된 난이도 값입니다. (EASY, NORMAL, HARD, ALL 중 하나를 입력하세요)"),
 
     // --- history & token ---
     HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "HISTORY_404_NOT_FOUND", "제출 기록을 찾을 수 없습니다."),

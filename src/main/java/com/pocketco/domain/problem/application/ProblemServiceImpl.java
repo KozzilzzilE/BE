@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.pocketco.domain.problem.exception.ProblemInvalidDifficultyException;
 
 import java.util.*;
 
@@ -162,6 +163,14 @@ public class ProblemServiceImpl implements ProblemService {
 
         // 1. 사용자 존재 여부 확인 (한성대 컴공생답게 예외 처리는 필수!
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        if (difficulty != null && !difficulty.isBlank() && !difficulty.equalsIgnoreCase("ALL")) {
+            String upperDiff = difficulty.toUpperCase();
+            if (!List.of("EASY", "NORMAL", "HARD").contains(upperDiff)) {
+                // GeneralException 대신 도메인 전용 예외를 던짐
+                throw new ProblemInvalidDifficultyException();
+            }
+        }
 
         // 2. 난이도 필터링 분기 처리
         Page<Problem> problemPage;
