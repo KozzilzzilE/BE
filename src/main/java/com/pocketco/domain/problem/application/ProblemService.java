@@ -5,6 +5,8 @@ import com.pocketco.domain.problem.dto.ProblemHistoryResponse;
 import com.pocketco.domain.problem.dto.ProblemListResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemDetailResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemSolutionResponseDTO;
+import org.springframework.data.domain.Pageable;
+import com.pocketco.domain.problem.dto.*;
 
 import java.util.List;
 
@@ -15,4 +17,5 @@ public interface ProblemService {
     ProblemSolutionResponseDTO getProblemSolution(Long problemId, String language);
     List<ProblemHistoryResponse> getProblemHistory(Long userId, Long problemId);
     AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req);
+    ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, Pageable pageable);
 }

@@ -23,6 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.global.common.code.status.ErrorStatus;
 import com.pocketco.domain.problem.exception.ProblemHandler;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import com.pocketco.domain.user.entity.User;
 
 import java.util.*;
 
@@ -153,7 +156,25 @@ public class ProblemServiceImpl implements ProblemService {
                 .problems(resultDTOs)
                 .build();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, Pageable pageable) {
+        // 1. 사용자 확인
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
+        // 2. 리포지토리의 무적 쿼리 호출 (레코드 생성자로 바로 매핑됨!)
+        Page<ProblemAllResponseDTO.ProblemItemDTO> problemPage =
+                problemRepository.findAllProblemsWithUserStatus(userId, pageable);
+
+        // 3. 빌더로 담아서 반환
+        return ProblemAllResponseDTO.ProblemListResponse.builder()
+                .problemList(problemPage.getContent())
+                .page(problemPage.getNumber())
+                .size(problemPage.getSize())
+                .totalPage(problemPage.getTotalPages())
+                .totalElements(problemPage.getTotalElements())
+                .build();
+    }
     @Override
     @Transactional(readOnly = true)
     public ProblemDetailResponseDTO getProblemDetail(Long userId, Long problemId, String languageName) {
@@ -237,6 +258,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .toList();
     }
 
+
     @Override
     public AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req) {
         // 해당 문제가 DB에 있는지
@@ -271,6 +293,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .solutionCodeId(savedSolutionCode.getId())
                 .build();
     }
+
 }
 
 
