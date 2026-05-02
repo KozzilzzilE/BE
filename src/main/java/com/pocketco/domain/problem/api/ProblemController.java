@@ -54,13 +54,22 @@ public class ProblemController {
         List<ProblemHistoryResponse> result = problemService.getProblemHistory(userId, problemId);
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_SUBMIT_HISTORY_SUCCESS, result);
     }
-    @GetMapping("") // 경로: /api/v1/problems
-    @Operation(summary = "전체 코딩 문제 목록 조회", description = "페이징을 포함한 전체 문제 목록을 조회합니다.") // 스웨거용 설명
-    public BaseResponse<ProblemAllResponseDTO.ProblemListResponse> getProblemList(
-            @AuthenticationPrincipal Long userId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        // 서비스에서 만든 메서드 호출!
-        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_LIST_SUCCESS, problemService.getProblemList(userId, pageable));
+    @GetMapping("")
+    @Operation(summary = "전체 코딩 문제 목록 조회 API", description = "난이도 필터링 및 페이징이 포함된 문제 목록을 조회합니다.")
+    public BaseResponse<ProblemAllResponseDTO.ProblemListResponse> getProblems(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam(value = "difficulty", required = false, defaultValue = "ALL") String difficulty,
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+
+        SuccessStatus status = (difficulty == null || difficulty.equalsIgnoreCase("ALL"))
+                ? SuccessStatus.PROBLEM_LIST_SUCCESS
+                : SuccessStatus.PROBLEM_DIFFICULTY_LIST_SUCCESS;
+
+        return BaseResponse.onSuccess(
+                status,
+                problemService.getProblemList(userId, difficulty, pageable)
+        );
     }
 }
