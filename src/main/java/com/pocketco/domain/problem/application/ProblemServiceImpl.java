@@ -161,13 +161,12 @@ public class ProblemServiceImpl implements ProblemService {
     @Transactional(readOnly = true)
     public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable) {
 
-        // 1. 사용자 존재 여부 확인 (한성대 컴공생답게 예외 처리는 필수!
+        // 1. 사용자 존재 여부 확인
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         if (difficulty != null && !difficulty.isBlank() && !difficulty.equalsIgnoreCase("ALL")) {
             String upperDiff = difficulty.toUpperCase();
             if (!List.of("EASY", "NORMAL", "HARD").contains(upperDiff)) {
-                // GeneralException 대신 도메인 전용 예외를 던짐
                 throw new ProblemInvalidDifficultyException();
             }
         }
@@ -182,7 +181,6 @@ public class ProblemServiceImpl implements ProblemService {
             problemPage = problemRepository.findAllByDifficulty(difficulty.toUpperCase(), pageable);
         }
 
-        // 3. Entity 리스트를 하은이가 정한 응답 DTO 리스트로 변환
         List<ProblemAllResponseDTO.ProblemItemDTO> problemItems = problemPage.getContent().stream()
                 .map(problem -> {
                     // 난이도 한글 표시명 변환
@@ -244,7 +242,7 @@ public class ProblemServiceImpl implements ProblemService {
         int bookmarkCount = bookmarkRepository.countByProblem_Id(problemId);
         boolean isBookmarked = bookmarkRepository.existsByUser_IdAndProblem_Id(userId, problemId);
 
-        // 6. 시간 제한 (ms -> sec 변환)
+        // 6. 시간 제한
         double timeLimitSec = timeLimitRepository.findByProblem_IdAndLanguage_Id(problemId, language.getId())
                 .map(t -> t.getTimeLimitMs() / 1000.0)
                 .orElse(1.0);

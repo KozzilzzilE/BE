@@ -16,11 +16,11 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
     List<Problem> findAllByTopicIdOrderByDifficultyOrderAscIdAsc(Long topicId);
 
-    // 1. 모든 문제 페이징 조회 (토픽 정보를 한 번에 Join해서 성능 최적화!)
+    // 1. 모든 문제 페이징 조회
     @EntityGraph(attributePaths = {"topic"})
     Page<Problem> findAll(Pageable pageable);
 
-    // 2. 난이도별 문제 페이징 조회 (새로 추가!)
+    // 2. 난이도별 문제 페이징 조회
     @EntityGraph(attributePaths = {"topic"})
     Page<Problem> findAllByDifficulty(String difficulty, Pageable pageable);
 }
