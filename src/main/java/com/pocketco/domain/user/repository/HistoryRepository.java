@@ -64,4 +64,12 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     where h.id = :historyId
     """)
     Optional<History> findByIdForUpdate(@Param("historyId") Long historyId);
+
+    @Query("""
+        select count(distinct h.problem.id)
+        from History h
+        where h.user.id = :userId
+          and h.status = 'ACCEPTED'
+    """)
+    long countSolvedProblemUnique(@Param("userId") Long userId);
 }
