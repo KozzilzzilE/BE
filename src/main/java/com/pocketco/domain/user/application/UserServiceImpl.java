@@ -9,6 +9,7 @@ import com.pocketco.domain.user.entity.User;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.repository.UserRepository;
+import com.pocketco.domain.user.dto.UserResponseDTO;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
 import lombok.RequiredArgsConstructor;
@@ -91,4 +92,23 @@ public class UserServiceImpl implements UserService {
                 .language(user.getLanguage().getName())
                 .build();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDTO.MyPageResponse getMyPage(Long userId) {
+        // 1. 사용자 정보 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        // 2. 고유하게 해결한 문제 수 조회
+        long solvedCount = historyRepository.countSolvedProblemUnique(userId);
+
+        // 3. DTO 조립
+        return UserResponseDTO.MyPageResponse.builder()
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .language(user.getLanguage() != null ? user.getLanguage().getName() : "JAVA")
+                .solvedProblemCount(solvedCount)
+                .build();
+    }
+
 }
