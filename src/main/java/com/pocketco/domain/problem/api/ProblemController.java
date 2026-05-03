@@ -15,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.data.domain.Sort;
+import com.pocketco.domain.problem.dto.TempStorageResponseDTO;
+import com.pocketco.domain.problem.dto.ProblemRequestDTO;
+import com.pocketco.domain.user.entity.User;
 
 import java.util.List;
 
@@ -71,5 +74,18 @@ public class ProblemController {
                 status,
                 problemService.getProblemList(userId, difficulty, pageable)
         );
+    }
+
+    @PutMapping("/{problemId}/temp-storages")
+    @Operation(summary = "코드 작성 임시 저장 API", description = "작성 중인 코드를 임시 저장하거나 기존 저장본을 업데이트합니다.")
+    public BaseResponse<TempStorageResponseDTO> saveTempCode(
+            @PathVariable(name = "problemId") Long problemId,
+            @RequestParam(name = "language") String language,
+            @RequestBody ProblemRequestDTO.TempStorageRequest request,
+            @AuthenticationPrincipal User user // SecurityContext에서 User 엔티티를 바로 가져와! ⠒̫⃝
+    ) {
+        TempStorageResponseDTO result = problemService.saveOrUpdateTempCode(user, problemId, language, request);
+
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_SAVE_SUCCESS, result);
     }
 }
