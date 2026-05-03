@@ -2,6 +2,8 @@ package com.pocketco.domain.learning.application;
 
 import com.pocketco.domain.admin.dto.AddNotionRequest;
 import com.pocketco.domain.admin.dto.AddNotionResponse;
+import com.pocketco.domain.admin.dto.AdminRequestDTO;
+import com.pocketco.domain.admin.dto.AdminResponseDTO;
 import com.pocketco.domain.learning.dto.LearningNotionCompletionResponse;
 import com.pocketco.domain.learning.dto.LearningNotionResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,4 +14,5 @@ public interface NotionService {
     AddNotionResponse addNotion(MultipartFile image, AddNotionRequest req) throws IOException;
     LearningNotionResponse getLearningNotions(Long topicId, String language, Long userId);
     LearningNotionCompletionResponse notionComplete(Long notionId, Long userId);
+    AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request);
 }

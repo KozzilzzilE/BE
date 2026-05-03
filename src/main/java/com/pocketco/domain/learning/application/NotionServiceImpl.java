@@ -30,6 +30,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.pocketco.domain.admin.dto.AdminRequestDTO;
+import com.pocketco.domain.admin.dto.AdminResponseDTO;
+import com.pocketco.domain.language.repository.LanguageRepository;
+import com.pocketco.domain.language.exception.LanguageNotFoundException;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,6 +51,7 @@ public class NotionServiceImpl implements NotionService {
     private final FileStorageService fileStorageService;
     private final TopicRepository topicRepository;
     private final LanguageService languageService;
+    private final LanguageRepository languageRepository;
 
     @Override
     public AddNotionResponse addNotion(MultipartFile image, AddNotionRequest req) throws IOException {
@@ -154,6 +159,44 @@ public class NotionServiceImpl implements NotionService {
                 .notionId(notionId)
                 .userName(user.getNickname())
                 .notionCompleted(true)
+                .build();
+    }
+// ... 기존 코드 위쪽 생략
+
+    @Override // 이제 인터페이스와 모양이 같아서 에러가 안 날 거야! 👊✨
+    public AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request) {
+
+        // 1. Notion 존재 확인
+        Notion notion = notionRepository.findById(notionId)
+                .orElseThrow(NotionNotExistsException::new);
+
+        // 2. Notion 메타데이터 업데이트 (Notion 엔티티에 메서드 추가 필요!)
+        notion.updateMetadata(request.getTitle(), request.getPoint(), request.getDetail());
+
+        NotionCode resultPrimaryCode = null;
+
+        // 3. 언어별 예제 코드 저장
+        for (AdminRequestDTO.CodeContentRequest codeReq : request.getCodes()) {
+            Language lang = languageRepository.findById(codeReq.getLanguageId())
+                    .orElseThrow(LanguageNotFoundException::new);
+
+            NotionCode savedCode = notionCodeRepository.save(
+                    NotionCode.builder()
+                            .notion(notion)
+                            .language(lang)
+                            .content(codeReq.getContent())
+                            .build()
+            );
+
+            if (lang.getId().equals(languageId)) {
+                resultPrimaryCode = savedCode;
+            }
+        }
+
+        return AdminResponseDTO.AddNotionCodeResponse.builder()
+                .notionId(notionId)
+                .languageName(resultPrimaryCode != null ? resultPrimaryCode.getLanguage().getName() : "JAVA")
+                .notionCodeId(resultPrimaryCode != null ? resultPrimaryCode.getId() : null)
                 .build();
     }
 }
