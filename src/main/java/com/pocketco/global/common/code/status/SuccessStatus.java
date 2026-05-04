@@ -55,6 +55,8 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_RUN_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_204", "문제 코드 실행 결과 조회 성공"),
     PROBLEM_SUBMIT_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_205", "문제 코드 채점 결과 조회 성공"),
     PROBLEM_SUBMIT_HISTORY_SUCCESS(HttpStatus.OK, "PROBLEM_206", "사용자 문제 제출 기록 조회 성공"),
+    PROBLEM_TEMP_SAVE_SUCCESS(HttpStatus.OK, "PROBLEM_207", "임시 저장이 완료되었습니다."),
+    PROBLEM_TEMP_GET_SUCCESS(HttpStatus.OK, "PROBLEM_208", "임시 저장된 코드를 성공적으로 불러왔습니다."),
     PROBLEM_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_209", "전체 문제 목록 조회를 성공했습니다."),
     PROBLEM_DIFFICULTY_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_210", "난이도별 문제 목록 조회를 성공했습니다."),
 

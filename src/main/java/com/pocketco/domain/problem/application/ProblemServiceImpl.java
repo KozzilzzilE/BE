@@ -12,6 +12,7 @@ import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.problem.exception.ProblemSolutionNotFoundException;
 import com.pocketco.domain.problem.exception.ProblemLanguageSolutionCodeAlreadyExistsException;
 import com.pocketco.domain.problem.exception.ProblemLanguageTimeLimitAlreadyExistsException;
+import com.pocketco.domain.problem.exception.TempStorageNotFoundException;
 import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
@@ -27,12 +28,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.pocketco.domain.problem.exception.ProblemInvalidDifficultyException;
+import com.pocketco.domain.problem.dto.TempStorageResponseDTO;
+import com.pocketco.domain.problem.dto.ProblemRequestDTO;
+import com.pocketco.domain.problem.entity.UserProblemCode;
+import com.pocketco.domain.problem.repository.UserProblemCodeRepository;
+import com.pocketco.domain.user.entity.User;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+
 public class ProblemServiceImpl implements ProblemService {
     private final ProblemRepository problemRepository;
     private final TestCaseRepository testCaseRepository;
@@ -43,6 +50,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final UserRepository userRepository;
     private final TimeLimitRepository timeLimitRepository;
     private final BookmarkProblemRepository bookmarkRepository;
+    private final UserProblemCodeRepository userProblemCodeRepository;
 
     @Override
     public List<AddProblemResponse> addProblems(AddProblemRequests reqs) {
@@ -110,6 +118,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .languageSettingCount(codes.size())
                 .build();
     }
+
     @Override
     @Transactional(readOnly = true)
     public ProblemListResponseDTO getProblemListByTopic(Long topicId, Long userId) {
@@ -157,6 +166,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .problems(resultDTOs)
                 .build();
     }
+
     @Override
     @Transactional(readOnly = true)
     public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable) {
@@ -329,7 +339,58 @@ public class ProblemServiceImpl implements ProblemService {
                 .build();
     }
 
-}
+    @Override
+    public TempStorageResponseDTO saveOrUpdateTempCode(User user, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request) {
+
+        if (!problemRepository.existsById(problemId)) {
+            throw new ProblemNotFoundException();
+        }
+
+        Language languageEntity = languageService.findLanguageWithName(language);
+
+        UserProblemCode userCode = userProblemCodeRepository
+                .findByUserAndProblemIdAndLanguage(user, problemId, languageEntity)
+                .map(existingCode -> {
+                    existingCode.updateSourceCode(request.getSourceCode());
+                    return existingCode;
+                })
+                .orElseGet(() -> UserProblemCode.builder()
+                        .user(user)
+                        .problemId(problemId)
+                        .language(languageEntity)
+                        .sourceCode(request.getSourceCode())
+                        .build());
+
+        UserProblemCode saved = userProblemCodeRepository.save(userCode);
+
+        return TempStorageResponseDTO.builder()
+                .userCodeId(saved.getId())
+                .updatedAt(saved.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TempStorageGetDTO getTempCode(User user, Long problemId, String language) {
+
+        if (!problemRepository.existsById(problemId)) {
+            throw new ProblemNotFoundException();
+        }
+
+        Language languageEntity = languageService.findLanguageWithName(language);
+
+        return userProblemCodeRepository.findByUserAndProblemIdAndLanguage(user, problemId, languageEntity)
+                .map(code -> TempStorageGetDTO.builder()
+                        .userCodeId(code.getId())
+                        .sourceCode(code.getSourceCode())
+                        .language(code.getLanguage().getName())
+                        .updatedAt(code.getUpdatedAt())
+                        .build())
+                .orElse(null);
+    }
+    }
+
+
 
 
 
