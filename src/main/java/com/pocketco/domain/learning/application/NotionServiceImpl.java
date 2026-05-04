@@ -34,6 +34,8 @@ import com.pocketco.domain.admin.dto.AdminRequestDTO;
 import com.pocketco.domain.admin.dto.AdminResponseDTO;
 import com.pocketco.domain.language.repository.LanguageRepository;
 import com.pocketco.domain.language.exception.LanguageNotFoundException;
+import com.pocketco.global.exception.GeneralException;
+import com.pocketco.global.common.code.status.ErrorStatus;
 
 import java.io.IOException;
 import java.util.*;
@@ -161,42 +163,38 @@ public class NotionServiceImpl implements NotionService {
                 .notionCompleted(true)
                 .build();
     }
-// ... 기존 코드 위쪽 생략
 
-    @Override // 이제 인터페이스와 모양이 같아서 에러가 안 날 거야! 👊✨
+    @Override
     public AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request) {
 
-        // 1. Notion 존재 확인
+        // 1. 해당 개념 페이지(Notion)가 존재하는지 확인
         Notion notion = notionRepository.findById(notionId)
                 .orElseThrow(NotionNotExistsException::new);
 
-        // 2. Notion 메타데이터 업데이트 (Notion 엔티티에 메서드 추가 필요!)
-        notion.updateMetadata(request.getTitle(), request.getPoint(), request.getDetail());
+        // 2. 해당 언어(Language)가 존재하는지 확인
+        Language lang = languageRepository.findById(languageId)
+                .orElseThrow(LanguageNotFoundException::new);
 
-        NotionCode resultPrimaryCode = null;
-
-        // 3. 언어별 예제 코드 저장
-        for (AdminRequestDTO.CodeContentRequest codeReq : request.getCodes()) {
-            Language lang = languageRepository.findById(codeReq.getLanguageId())
-                    .orElseThrow(LanguageNotFoundException::new);
-
-            NotionCode savedCode = notionCodeRepository.save(
-                    NotionCode.builder()
-                            .notion(notion)
-                            .language(lang)
-                            .content(codeReq.getContent())
-                            .build()
-            );
-
-            if (lang.getId().equals(languageId)) {
-                resultPrimaryCode = savedCode;
-            }
+        // 🚨 3. 중복 검증 (Safety Belt! 👊✨)
+        // 이 페이지에 이 언어의 코드가 이미 저장되어 있는지 확인해!
+        // 🚨 3. 중복 검증 로직 부분만 이렇게 살짝 바꿔줘! 👊✨
+        if (notionCodeRepository.existsByNotion_IdAndLanguage_Id(notionId, languageId)) {
+            // 중괄호 {} 를 끝에 붙여서 익명 클래스로 만들어 던지는 방식이야!
+            throw new GeneralException(ErrorStatus.LEARNING_NOTION_CODE_ALREADY_EXISTS) {};
         }
+
+        // 4. 단일 필드로 바로 저장 (for문 삭제 완벽해! 🚀🔥)
+        NotionCode savedCode = notionCodeRepository.save(
+                NotionCode.builder()
+                        .notion(notion)
+                        .language(lang)
+                        .content(request.getContent())
+                        .build()
+        );
 
         return AdminResponseDTO.AddNotionCodeResponse.builder()
                 .notionId(notionId)
-                .languageName(resultPrimaryCode != null ? resultPrimaryCode.getLanguage().getName() : "JAVA")
-                .notionCodeId(resultPrimaryCode != null ? resultPrimaryCode.getId() : null)
+                .languageName(lang.getName())
+                .notionCodeId(savedCode.getId())
                 .build();
-    }
-}
+    }}
