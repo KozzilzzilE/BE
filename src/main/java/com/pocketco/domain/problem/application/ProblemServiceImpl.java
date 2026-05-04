@@ -386,7 +386,7 @@ public class ProblemServiceImpl implements ProblemService {
                         .language(code.getLanguage().getName())
                         .updatedAt(code.getUpdatedAt())
                         .build())
-                .orElseThrow(TempStorageNotFoundException::new);
+                .orElse(null);
     }
     }
 
