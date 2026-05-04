@@ -20,4 +20,5 @@ public interface ProblemService {
     AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req);
     ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable);
     TempStorageResponseDTO saveOrUpdateTempCode(User user, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request);
+    TempStorageGetDTO getTempCode(User user, Long problemId, String language);
 }

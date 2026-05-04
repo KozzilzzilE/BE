@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import com.pocketco.domain.problem.dto.TempStorageResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemRequestDTO;
 import com.pocketco.domain.user.entity.User;
+import com.pocketco.domain.problem.dto.TempStorageGetDTO;
 
 import java.util.List;
 
@@ -87,5 +88,16 @@ public class ProblemController {
         TempStorageResponseDTO result = problemService.saveOrUpdateTempCode(user, problemId, language, request);
 
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_SAVE_SUCCESS, result);
+    }
+    @GetMapping("/{problemId}/temp-storages")
+    @Operation(summary = "임시 저장 코드 조회 API", description = "저장된 코드가 있으면 반환하고, 없으면 null을 반환합니다.")
+    public BaseResponse<TempStorageGetDTO> getTempCode(
+            @PathVariable(name = "problemId") Long problemId,
+            @RequestParam(name = "language") String language,
+            @AuthenticationPrincipal User user
+    ) {
+        TempStorageGetDTO result = problemService.getTempCode(user, problemId, language);
+
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_GET_SUCCESS, result);
     }
 }

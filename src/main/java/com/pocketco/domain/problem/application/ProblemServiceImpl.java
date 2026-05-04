@@ -117,6 +117,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .languageSettingCount(codes.size())
                 .build();
     }
+
     @Override
     @Transactional(readOnly = true)
     public ProblemListResponseDTO getProblemListByTopic(Long topicId, Long userId) {
@@ -164,6 +165,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .problems(resultDTOs)
                 .build();
     }
+
     @Override
     @Transactional(readOnly = true)
     public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable) {
@@ -335,10 +337,13 @@ public class ProblemServiceImpl implements ProblemService {
                 .solutionCodeId(savedSolutionCode.getId())
                 .build();
     }
+
     @Override
     public TempStorageResponseDTO saveOrUpdateTempCode(User user, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request) {
+        Language languageEntity = languageService.findLanguageWithName(language);
+
         UserProblemCode userCode = userProblemCodeRepository
-                .findByUserAndProblemIdAndLanguage(user, problemId, language)
+                .findByUserAndProblemIdAndLanguage(user, problemId, languageEntity)
                 .map(existingCode -> {
                     existingCode.updateSourceCode(request.getSourceCode());
                     return existingCode;
@@ -346,7 +351,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .orElseGet(() -> UserProblemCode.builder()
                         .user(user)
                         .problemId(problemId)
-                        .language(language)
+                        .language(languageEntity)
                         .sourceCode(request.getSourceCode())
                         .build());
 
@@ -356,6 +361,22 @@ public class ProblemServiceImpl implements ProblemService {
                 .userCodeId(saved.getId())
                 .updatedAt(saved.getUpdatedAt())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TempStorageGetDTO getTempCode(User user, Long problemId, String language) {
+
+        Language languageEntity = languageService.findLanguageWithName(language);
+
+        return userProblemCodeRepository.findByUserAndProblemIdAndLanguage(user, problemId, languageEntity)
+                .map(code -> TempStorageGetDTO.builder()
+                        .userCodeId(code.getId())
+                        .sourceCode(code.getSourceCode())
+                        .language(code.getLanguage().getName())
+                        .updatedAt(code.getUpdatedAt())
+                        .build())
+                .orElse(null);
     }
 
 }
