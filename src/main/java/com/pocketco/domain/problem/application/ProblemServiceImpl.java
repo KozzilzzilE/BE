@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.pocketco.domain.problem.exception.ProblemInvalidDifficultyException;
 
 import java.util.*;
 
@@ -158,15 +159,32 @@ public class ProblemServiceImpl implements ProblemService {
     }
     @Override
     @Transactional(readOnly = true)
-    public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, Pageable pageable) {
+    public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable) {
+
+        // 1. 사용자 존재 여부 확인
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        Page<Problem> problemPage = problemRepository.findAll(pageable);
+        if (difficulty != null && !difficulty.isBlank() && !difficulty.equalsIgnoreCase("ALL")) {
+            String upperDiff = difficulty.toUpperCase();
+            if (!List.of("EASY", "NORMAL", "HARD").contains(upperDiff)) {
+                throw new ProblemInvalidDifficultyException();
+            }
+        }
+
+        // 2. 난이도 필터링 분기 처리
+        Page<Problem> problemPage;
+        if (difficulty == null || difficulty.isBlank() || difficulty.equalsIgnoreCase("ALL")) {
+            // 전체 조회 (난이도 상관없이 모든 문제)
+            problemPage = problemRepository.findAll(pageable);
+        } else {
+            // 특정 난이도 필터링 (EASY, NORMAL, HARD 등)
+            problemPage = problemRepository.findAllByDifficulty(difficulty.toUpperCase(), pageable);
+        }
 
         List<ProblemAllResponseDTO.ProblemItemDTO> problemItems = problemPage.getContent().stream()
                 .map(problem -> {
-                    String diff = problem.getDifficulty() != null ? problem.getDifficulty().toUpperCase() : "NONE";
-                    String difficultyDisplayName = switch (diff) {
+                    // 난이도 한글 표시명 변환
+                    String difficultyDisplayName = switch (problem.getDifficulty().toUpperCase()) {
                         case "EASY" -> "쉬움";
                         case "NORMAL" -> "보통";
                         case "HARD" -> "어려움";
@@ -180,12 +198,13 @@ public class ProblemServiceImpl implements ProblemService {
                             .difficultyDisplayName(difficultyDisplayName)
                             .bookmarkCount((long) bookmarkRepository.countByProblem_Id(problem.getId()))
                             .isBookmark(bookmarkRepository.existsByUser_IdAndProblem_Id(userId, problem.getId()))
+                            .topicName(problem.getTopic() != null ? problem.getTopic().getName() : "NONE")
+                            .topicDisplayName(problem.getTopic() != null ? problem.getTopic().getDisplayName() : "미분류")
                             .isCompleted(historyRepository.existsByUser_IdAndProblem_IdAndStatus(userId, problem.getId(), HistoryStatus.ACCEPTED))
-                            .topicName(problem.getTopic() != null ? problem.getTopic().getName() : "미분류")
-                            .topicDisplayName(problem.getTopic() != null ? problem.getTopic().getDisplayName() : "미정")
                             .build();
                 }).toList();
 
+        // 4. 최종 페이징 정보와 함께 반환
         return ProblemAllResponseDTO.ProblemListResponse.builder()
                 .problemList(problemItems)
                 .page(problemPage.getNumber())
@@ -223,7 +242,7 @@ public class ProblemServiceImpl implements ProblemService {
         int bookmarkCount = bookmarkRepository.countByProblem_Id(problemId);
         boolean isBookmarked = bookmarkRepository.existsByUser_IdAndProblem_Id(userId, problemId);
 
-        // 6. 시간 제한 (ms -> sec 변환)
+        // 6. 시간 제한
         double timeLimitSec = timeLimitRepository.findByProblem_IdAndLanguage_Id(problemId, language.getId())
                 .map(t -> t.getTimeLimitMs() / 1000.0)
                 .orElse(1.0);

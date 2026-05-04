@@ -22,6 +22,7 @@ public enum SuccessStatus implements BaseCode {
     USER_MAIN_SUCCESS(HttpStatus.OK, "USER_200", "메인 화면 정보 조회 성공했습니다."),
     USER_UPDATE_SUCCESS(HttpStatus.OK, "USER_201", "사용자 이름 변경이 완료되었습니다."),
     LANGUAGE_UPDATE_SUCCESS(HttpStatus.OK, "USER_201", "메인 언어가 성공적으로 변경되었습니다."),
+    USER_MYPAGE_SUCCESS(HttpStatus.OK, "USER_203", "사용자 마이페이지 조회 성공했습니다."),
 
     // language
     LANGUAGES_LISTS_SUCCESS(HttpStatus.OK, "LANGUAGE_200", "사용가능한 언어 리스트 조회를 성공했습니다."),
@@ -55,6 +56,7 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_SUBMIT_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_205", "문제 코드 채점 결과 조회 성공"),
     PROBLEM_SUBMIT_HISTORY_SUCCESS(HttpStatus.OK, "PROBLEM_206", "사용자 문제 제출 기록 조회 성공"),
     PROBLEM_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_209", "전체 문제 목록 조회를 성공했습니다."),
+    PROBLEM_DIFFICULTY_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_210", "난이도별 문제 목록 조회를 성공했습니다."),
 
     // bookmark
     BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "BOOKMARK_200", "찜 추가 성공"),
