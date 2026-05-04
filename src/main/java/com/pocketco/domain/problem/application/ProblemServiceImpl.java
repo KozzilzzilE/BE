@@ -12,6 +12,7 @@ import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.problem.exception.ProblemSolutionNotFoundException;
 import com.pocketco.domain.problem.exception.ProblemLanguageSolutionCodeAlreadyExistsException;
 import com.pocketco.domain.problem.exception.ProblemLanguageTimeLimitAlreadyExistsException;
+import com.pocketco.domain.problem.exception.TempStorageNotFoundException;
 import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
@@ -340,6 +341,11 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public TempStorageResponseDTO saveOrUpdateTempCode(User user, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request) {
+
+        if (!problemRepository.existsById(problemId)) {
+            throw new ProblemNotFoundException();
+        }
+
         Language languageEntity = languageService.findLanguageWithName(language);
 
         UserProblemCode userCode = userProblemCodeRepository
@@ -367,6 +373,10 @@ public class ProblemServiceImpl implements ProblemService {
     @Transactional(readOnly = true)
     public TempStorageGetDTO getTempCode(User user, Long problemId, String language) {
 
+        if (!problemRepository.existsById(problemId)) {
+            throw new ProblemNotFoundException();
+        }
+
         Language languageEntity = languageService.findLanguageWithName(language);
 
         return userProblemCodeRepository.findByUserAndProblemIdAndLanguage(user, problemId, languageEntity)
@@ -376,10 +386,12 @@ public class ProblemServiceImpl implements ProblemService {
                         .language(code.getLanguage().getName())
                         .updatedAt(code.getUpdatedAt())
                         .build())
-                .orElse(null);
+                .orElseThrow(TempStorageNotFoundException::new);
+    }
     }
 
-}
+
+
 
 
 
