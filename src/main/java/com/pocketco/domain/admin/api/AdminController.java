@@ -89,7 +89,6 @@ public class AdminController {
     }
 
     @PostMapping("/notions/{notionId}/notion-codes/{languageId}/additions")
-    @io.swagger.v3.oas.annotations.Operation(summary = "개념 학습 예제 코드 추가 API", description = "학습 페이지에 언어별 예제 코드를 신규 등록합니다.")
     public BaseResponse<AdminResponseDTO.AddNotionCodeResponse> addNotionCode(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "notionId") Long notionId,
