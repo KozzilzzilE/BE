@@ -85,7 +85,7 @@ public class ProblemController {
             @PathVariable(name = "problemId") Long problemId,
             @RequestParam(name = "language") String language,
             @RequestBody ProblemRequestDTO.TempStorageRequest request,
-            @AuthenticationPrincipal User user // SecurityContext에서 User 엔티티를 바로 가져와! ⠒̫⃝
+            @AuthenticationPrincipal User user
     ) {
         TempStorageResponseDTO result = problemService.saveOrUpdateTempCode(user, problemId, language, request);
 

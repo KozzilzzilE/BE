@@ -396,7 +396,13 @@ public class ProblemServiceImpl implements ProblemService {
     @Transactional(readOnly = true)
     public List<RecentHistoryResponseDTO> getRecentHistories(Long userId) {
 
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
         List<History> histories = historyRepository.findTop10ByUser_IdOrderByCreatedAtDesc(userId);
+
+        if (histories == null || histories.isEmpty()) {
+            return new ArrayList<>();
+        }
 
         return histories.stream()
                 .map(history -> RecentHistoryResponseDTO.builder()
