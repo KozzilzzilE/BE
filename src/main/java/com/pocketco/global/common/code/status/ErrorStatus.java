@@ -47,6 +47,7 @@ public enum ErrorStatus implements BaseErrorCode {
     LEARNING_APPLIED_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "APPLIED_409_CODE_ALREADY_EXISTS", "해당 페이지에 해당 언어의 코드는 이미 존재 합니다."),
     LEARNING_APPLIED_EXERCISE_TOPIC_NOT_EXISTS(HttpStatus.NOT_FOUND, "APPLIED_404_TOPIC_NOT_FOUND", "해당 알고리즘의 해당 응용 페이지가 없습니다."),
     LEARNING_APPLIED_EXERCISE_NOT_EXISTS(HttpStatus.NOT_FOUND, "APPLIED_404_NOT_FOUND", "해당 응용 페이지가 없습니다."),
+    LEARNING_APPLIED_CODE_ANSWER_DUPLICATE(HttpStatus.BAD_REQUEST, "APPLIED_400_ANSWER_DUPLICATE", "중복된 정답 번호가 존재합니다."),
 
     // --- problem ---
     PROBLEM_ALREADY_EXISTS(HttpStatus.CONFLICT, "PROBLEM_409_ALREADY_EXISTS", "이미 존재하는 문제 제목입니다."),

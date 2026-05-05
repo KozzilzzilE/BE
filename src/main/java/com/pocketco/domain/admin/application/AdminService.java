@@ -17,4 +17,7 @@ public interface AdminService {
     AddProblemLanguageSettingResponse addProblemLanguageSetting(Long userId, Long problemId, Long languageId, AddProblemLanguageSettingRequest request);
     Long addCSProblem(Long userId, AddCSProblemRequest request);
     AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long userId, Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request);
+    // AdminService.java
+    AddExerciseAppliedCodeResponse addAppliedCode(Long userId, Long exerciseId, Long languageId, AddExerciseAppliedCodeRequest request);
+
 }

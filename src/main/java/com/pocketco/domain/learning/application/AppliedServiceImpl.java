@@ -1,13 +1,16 @@
 package com.pocketco.domain.learning.application;
 
+import com.pocketco.domain.admin.dto.*;
 import com.pocketco.domain.admin.dto.AddAppliedBlank;
 import com.pocketco.domain.admin.dto.AddAppliedCodeRequest;
+import com.pocketco.domain.language.repository.LanguageRepository;
 import com.pocketco.domain.admin.dto.AddAppliedRequest;
 import com.pocketco.domain.admin.dto.AddAppliedResponse;
 import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.learning.converter.LearningAppliedExerciseConverter;
 import com.pocketco.domain.learning.dto.LearningAppliedCompletionResponse;
+import com.pocketco.domain.learning.repository.applied.*;
 import com.pocketco.domain.learning.dto.LearningAppliedExercise;
 import com.pocketco.domain.learning.dto.LearningAppliedExerciseResponse;
 import com.pocketco.domain.learning.entity.applied.AppliedBlankProblem;
@@ -21,6 +24,7 @@ import com.pocketco.domain.learning.repository.applied.AppliedBlankProblemReposi
 import com.pocketco.domain.learning.repository.applied.AppliedCodeRepository;
 import com.pocketco.domain.learning.repository.applied.AppliedCompletionRepository;
 import com.pocketco.domain.learning.repository.applied.AppliedExerciseRepository;
+import com.pocketco.domain.learning.exception.AppliedCodeAnswerDuplicateException;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
@@ -30,6 +34,9 @@ import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.pocketco.domain.learning.repository.applied.AppliedExerciseCodeRepository;
+import com.pocketco.domain.language.exception.LanguageNotFoundException;
+import com.pocketco.domain.learning.exception.AppliedCodeAlreadyExistsException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +50,7 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 @Transactional
 public class AppliedServiceImpl implements AppliedService {
+
     private final AppliedExerciseRepository appliedExerciseRepository;
     private final AppliedCodeRepository appliedCodeRepository;
     private final AppliedBlankProblemRepository appliedBlankProblemRepository;
@@ -50,6 +58,8 @@ public class AppliedServiceImpl implements AppliedService {
     private final UserRepository userRepository;
     private final TopicRepository topicRepository;
     private final LanguageService languageService;
+    private final LanguageRepository languageRepository;
+    private final AppliedExerciseCodeRepository appliedExerciseCodeRepository;
 
     @Override
     public List<AddAppliedResponse> addApplied(List<AddAppliedRequest> reqs) {
@@ -64,7 +74,9 @@ public class AppliedServiceImpl implements AppliedService {
         topicRepository.findById(topicId).orElseThrow(() -> new TopicNotFoundException());
 
         List<AppliedExercise> exercises = appliedExerciseRepository.findByTopic_IdOrderByOrderNoAsc(topicId);
-        if (exercises.isEmpty()) { throw new AppliedExerciseTopicNotExistsException(); }
+        if (exercises.isEmpty()) {
+            throw new AppliedExerciseTopicNotExistsException();
+        }
 
         List<Long> exerciseIds = exercises.stream().map(AppliedExercise::getId).toList();
         List<AppliedCode> appliedCodes = appliedCodeRepository.findByExercise_IdInAndLanguage_Id(exerciseIds, languageId);
@@ -90,7 +102,9 @@ public class AppliedServiceImpl implements AppliedService {
 
                     AppliedCode appliedCode = appliedCodeMap.get(exerciseId);
                     List<AppliedBlankProblem> appliedBlanks = null;
-                    if (appliedCode != null) { appliedBlanks = appliedBlankMap.get(appliedCode.getId()); }
+                    if (appliedCode != null) {
+                        appliedBlanks = appliedBlankMap.get(appliedCode.getId());
+                    }
                     boolean completed = completedAppliedIds.contains(exerciseId);
 
                     return LearningAppliedExerciseConverter.toExerciseResponse(exercise, appliedCode, completed, appliedBlanks);
@@ -177,6 +191,61 @@ public class AppliedServiceImpl implements AppliedService {
                 .exerciseId(savedAppliedExercise.getId())
                 .orderNo(savedAppliedExercise.getOrderNo())
                 .title(savedAppliedExercise.getTitle())
+                .build();
+    }
+
+    @Override
+    public AddExerciseAppliedCodeResponse addAppliedCode(Long exerciseId, Long languageId, AddExerciseAppliedCodeRequest request) {
+
+        //  정답 번호(answer) 중복 체크 로직
+        List<Integer> answers = request.getBlanks().stream()
+                .map(ExerciseBlankDTO::getAnswer)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        long uniqueCount = answers.stream().distinct().count();
+        if (answers.size() != uniqueCount) {
+            throw new AppliedCodeAnswerDuplicateException();
+        }
+
+
+        // 1. 응용 학습 존재 확인 (
+        AppliedExercise exercise = appliedExerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new AppliedExerciseNotExistsException());
+
+        // 2. 언어 존재 확인
+        Language language = languageRepository.findById(languageId)
+                .orElseThrow(() -> new LanguageNotFoundException());
+
+        // 3. 중복 체크
+        if (appliedExerciseCodeRepository.existsByExerciseAndLanguage(exercise, language)) {
+            throw new AppliedCodeAlreadyExistsException();
+        }
+
+        // 4. AppliedCode 저장
+        AppliedCode appliedCode = AppliedCode.builder()
+                .exercise(exercise)
+                .language(language)
+                .codeTemplate(request.getCodeTemplate())
+                .build();
+        AppliedCode savedCode = appliedExerciseCodeRepository.save(appliedCode);
+
+        // 5. AppliedBlankProblem 저장
+        List<AppliedBlankProblem> blanks = request.getBlanks().stream()
+                .map(dto -> AppliedBlankProblem.builder()
+                        .exerciseCode(savedCode)
+                        .content(dto.getContent())
+                        .answer(dto.getAnswer())
+                        .build())
+                .toList();
+
+        appliedBlankProblemRepository.saveAll(blanks);
+
+        return AddExerciseAppliedCodeResponse.builder()
+                .exerciseId(exercise.getId())
+                .languageName(language.getName())
+                .appliedCodeId(savedCode.getId())
+                .blankCount(blanks.size())
                 .build();
     }
 }
