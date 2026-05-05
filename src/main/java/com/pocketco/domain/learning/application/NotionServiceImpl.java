@@ -175,15 +175,11 @@ public class NotionServiceImpl implements NotionService {
         Language lang = languageRepository.findById(languageId)
                 .orElseThrow(LanguageNotFoundException::new);
 
-        // 🚨 3. 중복 검증 (Safety Belt! 👊✨)
-        // 이 페이지에 이 언어의 코드가 이미 저장되어 있는지 확인해!
-        // 🚨 3. 중복 검증 로직 부분만 이렇게 살짝 바꿔줘! 👊✨
+        // 3. 중복 검증
         if (notionCodeRepository.existsByNotion_IdAndLanguage_Id(notionId, languageId)) {
-            // 중괄호 {} 를 끝에 붙여서 익명 클래스로 만들어 던지는 방식이야!
             throw new GeneralException(ErrorStatus.LEARNING_NOTION_CODE_ALREADY_EXISTS) {};
         }
 
-        // 4. 단일 필드로 바로 저장 (for문 삭제 완벽해! 🚀🔥)
         NotionCode savedCode = notionCodeRepository.save(
                 NotionCode.builder()
                         .notion(notion)
