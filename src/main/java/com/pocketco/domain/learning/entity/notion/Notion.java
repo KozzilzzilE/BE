@@ -40,4 +40,10 @@ public class Notion extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;
+
+    public void updateMetadata(String title, String point, String detail) {
+        this.title = title;
+        this.point = point;
+        this.detail = detail;
+    }
 }

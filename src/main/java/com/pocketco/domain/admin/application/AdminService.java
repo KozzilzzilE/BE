@@ -16,4 +16,5 @@ public interface AdminService {
     List<Judge0LanguageResponse> judge0Languages(Long userId);
     AddProblemLanguageSettingResponse addProblemLanguageSetting(Long userId, Long problemId, Long languageId, AddProblemLanguageSettingRequest request);
     Long addCSProblem(Long userId, AddCSProblemRequest request);
+    AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long userId, Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request);
 }

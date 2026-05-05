@@ -67,4 +67,8 @@ public class AdminServiceImpl implements AdminService {
     public Long addCSProblem(Long userId, AddCSProblemRequest request) {
         return csProblemService.addCSProblem(request);
     }
+    @Override
+    public AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long userId, Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request) {
+        return notionService.addNotionCode(notionId, languageId, request);
+    }
 }

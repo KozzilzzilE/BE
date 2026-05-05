@@ -87,4 +87,16 @@ public class AdminController {
         Long result = adminService.addCSProblem(userId, request);
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_CS_PROBLEM_SUCCESS, result);
     }
+
+    @PostMapping("/notions/{notionId}/notion-codes/{languageId}/additions")
+    public BaseResponse<AdminResponseDTO.AddNotionCodeResponse> addNotionCode(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable(name = "notionId") Long notionId,
+            @PathVariable(name = "languageId") Long languageId,
+            @RequestBody @Valid AdminRequestDTO.AddNotionCodeRequest request) {
+
+        AdminResponseDTO.AddNotionCodeResponse result = adminService.addNotionCode(userId, notionId, languageId, request);
+
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_NOTION_CODE_SUCCESS, result);
+    }
 }
