@@ -59,6 +59,7 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_TEMP_GET_SUCCESS(HttpStatus.OK, "PROBLEM_208", "임시 저장된 코드를 성공적으로 불러왔습니다."),
     PROBLEM_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_209", "전체 문제 목록 조회를 성공했습니다."),
     PROBLEM_DIFFICULTY_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_210", "난이도별 문제 목록 조회를 성공했습니다."),
+    PROBLEM_RECENT_HISTORY_SUCCESS(HttpStatus.OK, "PROBLEM_211", "최근 제출 기록 조회를 성공했습니다."),
 
     // bookmark
     BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "BOOKMARK_200", "찜 추가 성공"),

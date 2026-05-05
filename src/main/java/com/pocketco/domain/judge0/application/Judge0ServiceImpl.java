@@ -12,7 +12,6 @@ import com.pocketco.domain.problem.entity.TestCase;
 import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.user.entity.*;
 import com.pocketco.domain.user.exception.UserNotFoundException;
-import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.exception.HistoryNotFoundException;
 import com.pocketco.domain.user.repository.Judge0TokenRepository;
 import com.pocketco.domain.user.repository.UserRepository;
@@ -24,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
+import com.pocketco.domain.user.repository.HistoryRepository;
 
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;

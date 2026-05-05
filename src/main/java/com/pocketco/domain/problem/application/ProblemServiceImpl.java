@@ -12,7 +12,6 @@ import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.problem.exception.ProblemSolutionNotFoundException;
 import com.pocketco.domain.problem.exception.ProblemLanguageSolutionCodeAlreadyExistsException;
 import com.pocketco.domain.problem.exception.ProblemLanguageTimeLimitAlreadyExistsException;
-import com.pocketco.domain.problem.exception.TempStorageNotFoundException;
 import com.pocketco.domain.problem.repository.*;
 import com.pocketco.domain.topic.entity.Topic;
 import com.pocketco.domain.topic.exception.TopicNotFoundException;
@@ -20,7 +19,6 @@ import com.pocketco.domain.topic.repository.TopicRepository;
 import com.pocketco.domain.user.entity.HistoryStatus;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.BookmarkProblemRepository;
-import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +31,11 @@ import com.pocketco.domain.problem.dto.ProblemRequestDTO;
 import com.pocketco.domain.problem.entity.UserProblemCode;
 import com.pocketco.domain.problem.repository.UserProblemCodeRepository;
 import com.pocketco.domain.user.entity.User;
+import com.pocketco.domain.user.repository.HistoryRepository;
+import com.pocketco.domain.user.entity.History;
+import java.time.ZoneId;
+import java.time.LocalDateTime;
+
 
 import java.util.*;
 
@@ -388,10 +391,30 @@ public class ProblemServiceImpl implements ProblemService {
                         .build())
                 .orElse(null);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RecentHistoryResponseDTO> getRecentHistories(Long userId) {
+
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        List<History> histories = historyRepository.findTop10ByUser_IdOrderByCreatedAtDesc(userId);
+
+        if (histories == null || histories.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return histories.stream()
+                .map(history -> RecentHistoryResponseDTO.builder()
+                        .historyId(history.getId())
+                        .problemId(history.getProblem().getId())
+                        .title(history.getProblem().getTitle())
+                        .sourceCode(history.getSourceCode())
+                        .status(history.getStatus().name())
+                        .language(history.getLanguage().getName())
+                        .createdAt(LocalDateTime.ofInstant(history.getCreatedAt(), ZoneId.of("Asia/Seoul")))
+                        .build())
+                .toList();
     }
-
-
-
-
-
+    }
 
