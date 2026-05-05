@@ -19,6 +19,8 @@ import com.pocketco.domain.problem.dto.TempStorageResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemRequestDTO;
 import com.pocketco.domain.user.entity.User;
 import com.pocketco.domain.problem.dto.TempStorageGetDTO;
+import com.pocketco.domain.problem.dto.RecentHistoryResponseDTO;
+import com.pocketco.domain.user.exception.UserNotFoundException;
 
 import java.util.List;
 
@@ -99,5 +101,19 @@ public class ProblemController {
         TempStorageGetDTO result = problemService.getTempCode(user, problemId, language);
 
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_GET_SUCCESS, result);
+    }
+
+    @GetMapping("/recent-histories")
+    public BaseResponse<List<RecentHistoryResponseDTO>> getRecentHistories(
+            @AuthenticationPrincipal Long userId
+    ) {
+        if (userId == null) {
+            throw new UserNotFoundException();
+        }
+
+        return BaseResponse.onSuccess(
+                SuccessStatus.PROBLEM_RECENT_HISTORY_SUCCESS,
+                problemService.getRecentHistories(userId)
+        );
     }
 }

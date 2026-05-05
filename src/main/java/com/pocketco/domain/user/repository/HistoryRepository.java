@@ -72,4 +72,6 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
           and h.status = 'ACCEPTED'
     """)
     long countSolvedProblemUnique(@Param("userId") Long userId);
+
+    List<History> findTop10ByUser_IdOrderByCreatedAtDesc(Long userId);
 }
