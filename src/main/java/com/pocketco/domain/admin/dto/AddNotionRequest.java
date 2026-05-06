@@ -3,7 +3,6 @@ package com.pocketco.domain.admin.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -33,5 +32,6 @@ public record AddNotionRequest(
 
         @Schema(description = "해당 페이지에 필요한 예제 코드들")
         @Valid
+        @NotNull
         List<AddNotionCodeRequest> codes
 ) {}
