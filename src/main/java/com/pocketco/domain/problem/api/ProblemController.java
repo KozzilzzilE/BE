@@ -85,9 +85,9 @@ public class ProblemController {
             @PathVariable(name = "problemId") Long problemId,
             @RequestParam(name = "language") String language,
             @RequestBody ProblemRequestDTO.TempStorageRequest request,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
-        TempStorageResponseDTO result = problemService.saveOrUpdateTempCode(user, problemId, language, request);
+        TempStorageResponseDTO result = problemService.saveOrUpdateTempCode(userId, problemId, language, request);
 
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_SAVE_SUCCESS, result);
     }
@@ -96,9 +96,9 @@ public class ProblemController {
     public BaseResponse<TempStorageGetDTO> getTempCode(
             @PathVariable(name = "problemId") Long problemId,
             @RequestParam(name = "language") String language,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
-        TempStorageGetDTO result = problemService.getTempCode(user, problemId, language);
+        TempStorageGetDTO result = problemService.getTempCode(userId, problemId, language);
 
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_GET_SUCCESS, result);
     }

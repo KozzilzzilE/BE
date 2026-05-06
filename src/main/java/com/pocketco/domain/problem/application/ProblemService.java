@@ -19,8 +19,8 @@ public interface ProblemService {
     List<ProblemHistoryResponse> getProblemHistory(Long userId, Long problemId);
     AddProblemLanguageSettingResponse addProblemLanguageSetting(Long problemId, Long languageId, AddProblemLanguageSettingRequest req);
     ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable);
-    TempStorageResponseDTO saveOrUpdateTempCode(User user, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request);
-    TempStorageGetDTO getTempCode(User user, Long problemId, String language);
+    TempStorageResponseDTO saveOrUpdateTempCode(Long userId, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request);
+    TempStorageGetDTO getTempCode(Long userId, Long problemId, String language);
     // ProblemService.java
     List<RecentHistoryResponseDTO> getRecentHistories(Long userId);
 }

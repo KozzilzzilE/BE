@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
 import com.pocketco.domain.user.repository.HistoryRepository;
-
+import com.pocketco.domain.problem.repository.UserProblemCodeRepository;
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
@@ -51,6 +51,8 @@ public class Judge0ServiceImpl implements Judge0Service {
     private final Judge0SlotLimiter judge0SlotLimiter;
     private final Judge0Client judge0Client;
     private final Judge0SubmitDispatcher judge0SubmitDispatcher;
+    private final UserProblemCodeRepository userProblemCodeRepository;
+
 
     @Override
     public List<Judge0LanguageResponse> getJudge0Languages() {
@@ -109,6 +111,8 @@ public class Judge0ServiceImpl implements Judge0Service {
                     .build();
             judge0TokenRepository.save(judge0Token);
         }
+
+        userProblemCodeRepository.deleteByUserAndProblemId(me, problemId);
 
         TransactionSynchronizationManager.registerSynchronization(
                 new TransactionSynchronization() {

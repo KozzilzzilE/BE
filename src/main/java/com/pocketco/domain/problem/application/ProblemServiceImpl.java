@@ -343,7 +343,10 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public TempStorageResponseDTO saveOrUpdateTempCode(User user, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request) {
+    public TempStorageResponseDTO saveOrUpdateTempCode(Long userId, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
 
         if (!problemRepository.existsById(problemId)) {
             throw new ProblemNotFoundException();
@@ -374,8 +377,10 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     @Transactional(readOnly = true)
-    public TempStorageGetDTO getTempCode(User user, Long problemId, String language) {
+    public TempStorageGetDTO getTempCode(Long userId, Long problemId, String language) {
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
         if (!problemRepository.existsById(problemId)) {
             throw new ProblemNotFoundException();
         }
