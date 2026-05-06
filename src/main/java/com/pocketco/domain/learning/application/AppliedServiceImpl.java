@@ -30,13 +30,12 @@ import com.pocketco.domain.topic.exception.TopicNotFoundException;
 import com.pocketco.domain.topic.repository.TopicRepository;
 import com.pocketco.domain.user.entity.User;
 import com.pocketco.domain.user.exception.UserNotFoundException;
+import com.pocketco.domain.learning.exception.AlreadyExistsAppliedCodeException;
 import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.pocketco.domain.learning.repository.applied.AppliedExerciseCodeRepository;
 import com.pocketco.domain.language.exception.LanguageNotFoundException;
-import com.pocketco.domain.learning.exception.AppliedCodeAlreadyExistsException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +58,7 @@ public class AppliedServiceImpl implements AppliedService {
     private final TopicRepository topicRepository;
     private final LanguageService languageService;
     private final LanguageRepository languageRepository;
-    private final AppliedExerciseCodeRepository appliedExerciseCodeRepository;
+
 
     @Override
     public List<AddAppliedResponse> addApplied(List<AddAppliedRequest> reqs) {
@@ -199,7 +198,7 @@ public class AppliedServiceImpl implements AppliedService {
 
         //  정답 번호(answer) 중복 체크 로직
         List<Integer> answers = request.getBlanks().stream()
-                .map(ExerciseBlankDTO::getAnswer)
+                .map(AddAppliedBlank::answer)
                 .filter(java.util.Objects::nonNull)
                 .toList();
 
@@ -218,8 +217,8 @@ public class AppliedServiceImpl implements AppliedService {
                 .orElseThrow(() -> new LanguageNotFoundException());
 
         // 3. 중복 체크
-        if (appliedExerciseCodeRepository.existsByExerciseAndLanguage(exercise, language)) {
-            throw new AppliedCodeAlreadyExistsException();
+        if (appliedCodeRepository.existsByExerciseAndLanguage(exercise, language)) {
+            throw new AlreadyExistsAppliedCodeException();
         }
 
         // 4. AppliedCode 저장
@@ -228,14 +227,14 @@ public class AppliedServiceImpl implements AppliedService {
                 .language(language)
                 .codeTemplate(request.getCodeTemplate())
                 .build();
-        AppliedCode savedCode = appliedExerciseCodeRepository.save(appliedCode);
+        AppliedCode savedCode = appliedCodeRepository.save(appliedCode);
 
         // 5. AppliedBlankProblem 저장
         List<AppliedBlankProblem> blanks = request.getBlanks().stream()
                 .map(dto -> AppliedBlankProblem.builder()
                         .exerciseCode(savedCode)
-                        .content(dto.getContent())
-                        .answer(dto.getAnswer())
+                        .content(dto.content())
+                        .answer(dto.answer())
                         .build())
                 .toList();
 

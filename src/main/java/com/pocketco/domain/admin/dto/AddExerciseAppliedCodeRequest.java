@@ -14,6 +14,6 @@ public class AddExerciseAppliedCodeRequest {
     private String codeTemplate;
 
     @NotEmpty
-    @Valid // 👈 중요: 리스트 안의 ExerciseBlankDTO들도 검사해라!
-    private List<ExerciseBlankDTO> blanks;
+    @Valid
+    private List<AddAppliedBlank> blanks;
 }
