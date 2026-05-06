@@ -20,11 +20,11 @@ import com.pocketco.global.util.judge0.Judge0SlotLimiter;
 import com.pocketco.global.util.judge0.Judge0SubmitDispatcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.pocketco.domain.user.repository.UserCodeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
 import com.pocketco.domain.user.repository.HistoryRepository;
-
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
@@ -51,6 +51,8 @@ public class Judge0ServiceImpl implements Judge0Service {
     private final Judge0SlotLimiter judge0SlotLimiter;
     private final Judge0Client judge0Client;
     private final Judge0SubmitDispatcher judge0SubmitDispatcher;
+    private final UserCodeRepository userCodeRepository;
+
 
     @Override
     public List<Judge0LanguageResponse> getJudge0Languages() {
@@ -109,6 +111,8 @@ public class Judge0ServiceImpl implements Judge0Service {
                     .build();
             judge0TokenRepository.save(judge0Token);
         }
+
+        userCodeRepository.deleteByUserAndProblem(me, problem);
 
         TransactionSynchronizationManager.registerSynchronization(
                 new TransactionSynchronization() {
