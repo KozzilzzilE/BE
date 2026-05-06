@@ -21,6 +21,7 @@ import com.pocketco.domain.user.entity.User;
 import com.pocketco.domain.problem.dto.TempStorageGetDTO;
 import com.pocketco.domain.problem.dto.RecentHistoryResponseDTO;
 import com.pocketco.domain.user.exception.UserNotFoundException;
+import jakarta.validation.Valid;
 
 import java.util.List;
 

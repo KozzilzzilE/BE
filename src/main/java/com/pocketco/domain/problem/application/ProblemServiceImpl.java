@@ -28,8 +28,8 @@ import org.springframework.data.domain.Pageable;
 import com.pocketco.domain.problem.exception.ProblemInvalidDifficultyException;
 import com.pocketco.domain.problem.dto.TempStorageResponseDTO;
 import com.pocketco.domain.problem.dto.ProblemRequestDTO;
-import com.pocketco.domain.problem.entity.UserProblemCode;
-import com.pocketco.domain.problem.repository.UserProblemCodeRepository;
+import com.pocketco.domain.user.entity.UserCode;
+import com.pocketco.domain.user.repository.UserCodeRepository;
 import com.pocketco.domain.user.entity.User;
 import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.entity.History;
@@ -53,7 +53,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final UserRepository userRepository;
     private final TimeLimitRepository timeLimitRepository;
     private final BookmarkProblemRepository bookmarkRepository;
-    private final UserProblemCodeRepository userProblemCodeRepository;
+    private final UserCodeRepository userCodeRepository;
 
     @Override
     public List<AddProblemResponse> addProblems(AddProblemRequests reqs) {
@@ -343,58 +343,52 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public TempStorageResponseDTO saveOrUpdateTempCode(Long userId, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request) {
+    public TempStorageResponseDTO saveOrUpdateTempCode(Long userId, Long problemId, String languageName, ProblemRequestDTO.TempStorageRequest request) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Problem problem = problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
+        Language language = languageService.findLanguageWithName(languageName);
 
-        if (!problemRepository.existsById(problemId)) {
-            throw new ProblemNotFoundException();
-        }
-
-        Language languageEntity = languageService.findLanguageWithName(language);
-
-        UserProblemCode userCode = userProblemCodeRepository
-                .findByUserAndProblemIdAndLanguage(user, problemId, languageEntity)
+        UserCode userCode = userCodeRepository.findByUserAndProblemAndLanguage(user, problem, language)
                 .map(existingCode -> {
-                    existingCode.updateSourceCode(request.getSourceCode());
+                    // [Update] 이미 존재하면 덮어쓰기
+                    existingCode.setCode(request.getSourceCode());
                     return existingCode;
                 })
-                .orElseGet(() -> UserProblemCode.builder()
-                        .user(user)
-                        .problemId(problemId)
-                        .language(languageEntity)
-                        .sourceCode(request.getSourceCode())
-                        .build());
+                .orElseGet(() -> {
+                    // [Save] 존재하지 않으면 새로 생성
+                    return UserCode.builder()
+                            .user(user)
+                            .problem(problem)
+                            .language(language)
+                            .code(request.getSourceCode())
+                            .build();
+                });
 
-        UserProblemCode saved = userProblemCodeRepository.save(userCode);
+        UserCode saved = userCodeRepository.save(userCode);
 
         return TempStorageResponseDTO.builder()
                 .userCodeId(saved.getId())
-                .updatedAt(saved.getUpdatedAt())
+                .updatedAt(LocalDateTime.ofInstant(saved.getUpdatedAt(), ZoneId.of("Asia/Seoul")))
                 .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TempStorageGetDTO getTempCode(Long userId, Long problemId, String language) {
+    public TempStorageGetDTO getTempCode(Long userId, Long problemId, String languageName) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException());
-        if (!problemRepository.existsById(problemId)) {
-            throw new ProblemNotFoundException();
-        }
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Problem problem = problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
+        Language language = languageService.findLanguageWithName(languageName);
 
-        Language languageEntity = languageService.findLanguageWithName(language);
-
-        return userProblemCodeRepository.findByUserAndProblemIdAndLanguage(user, problemId, languageEntity)
+        return userCodeRepository.findByUserAndProblemAndLanguage(user, problem, language)
                 .map(code -> TempStorageGetDTO.builder()
                         .userCodeId(code.getId())
-                        .sourceCode(code.getSourceCode())
+                        .sourceCode(code.getCode()) // 🕵️ 오빠 엔티티 필드명 'code'
                         .language(code.getLanguage().getName())
-                        .updatedAt(code.getUpdatedAt())
+                        .updatedAt(LocalDateTime.ofInstant(code.getUpdatedAt(), ZoneId.of("Asia/Seoul")))
                         .build())
-                .orElse(null);
+                .orElse(null); // 🕵️ 명세서대로 없으면 null 반환!
     }
 
     @Override
