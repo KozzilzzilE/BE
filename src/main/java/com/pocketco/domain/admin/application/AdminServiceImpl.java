@@ -8,6 +8,8 @@ import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.learning.application.AppliedService;
 import com.pocketco.domain.learning.application.NotionService;
 import com.pocketco.domain.topic.application.TopicService;
+import com.pocketco.domain.user.repository.UserRepository;
+import com.pocketco.domain.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class AdminServiceImpl implements AdminService {
     private final ProblemService problemService;
     private final Judge0Service judge0Service;
     private final CSProblemService csProblemService;
+    private final UserRepository userRepository;
 
     @Override
     public AddLanguageResponse addLanguage(Long userId, AddLanguageRequest request) {
@@ -70,5 +73,15 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long userId, Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request) {
         return notionService.addNotionCode(notionId, languageId, request);
+    }
+
+    // AdminServiceImpl.java
+    @Override
+    public AddExerciseAppliedCodeResponse addAppliedCode(Long userId, Long exerciseId, Long languageId, AddExerciseAppliedCodeRequest request) {
+        // 1. 유저 확인만 여기서 하고!
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        // 2. 실제 비즈니스 로직은 전문가인 appliedService에게 토스! 🚀🔥
+        return appliedService.addAppliedCode(exerciseId, languageId, request);
     }
 }

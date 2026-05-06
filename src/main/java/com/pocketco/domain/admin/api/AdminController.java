@@ -99,4 +99,16 @@ public class AdminController {
 
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_NOTION_CODE_SUCCESS, result);
     }
+
+    @PostMapping("/applications/{exerciseId}/applied-codes/{languageId}/additions")
+    public BaseResponse<AddExerciseAppliedCodeResponse> addAppliedCode(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable(name = "exerciseId") Long exerciseId,
+            @PathVariable(name = "languageId") Long languageId,
+            @RequestBody @Valid AddExerciseAppliedCodeRequest request) {
+
+        AddExerciseAppliedCodeResponse result = adminService.addAppliedCode(userId, exerciseId, languageId, request);
+
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_APPLIED_CODE_SUCCESS, result);
+    }
 }

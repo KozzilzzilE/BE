@@ -34,8 +34,9 @@ public enum SuccessStatus implements BaseCode {
     ADMIN_ADD_APPLIED_EXERCISE_SUCCESS(HttpStatus.CREATED, "ADMIN_203", "응용 학습 추가 성공했습니다."),
     ADMIN_ADD_PROBLEM_SUCCESS(HttpStatus.CREATED, "ADMIN_204", "코딩 문제 추가 성공했습니다."),
     ADMIN_JUDGE0_LANGUAGE_LIST(HttpStatus.OK, "ADMIN_205", "judge0 언어 목록 조회 성공했습니다."),
-    ADMIN_NOTION_CODE_SUCCESS(HttpStatus.OK, "ADMIN_207", "개념 학습 페이지 예제 코드 추가 성공"),
     ADMIN_ADD_PROBLEM_LANGUAGE_SETTING_SUCCESS(HttpStatus.CREATED, "ADMIN_206", "코딩 문제 언어 설정 추가 성공했습니다."),
+    ADMIN_NOTION_CODE_SUCCESS(HttpStatus.OK, "ADMIN_207", "개념 학습 페이지 예제 코드 추가 성공"),
+    ADMIN_APPLIED_CODE_SUCCESS(HttpStatus.OK, "ADMIN_208", "응용 학습 페이지 빈칸 코드와 보기 추가 성공"),
     ADMIN_ADD_CS_PROBLEM_SUCCESS(HttpStatus.CREATED, "ADMIN_209", "CS 문제 추가 성공했습니다."),
 
 
