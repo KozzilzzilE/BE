@@ -5,6 +5,9 @@ import com.pocketco.domain.admin.dto.*;
 import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.global.common.code.status.SuccessStatus;
 import com.pocketco.global.common.response.BaseResponse;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -41,6 +44,14 @@ public class AdminController {
     public BaseResponse<AddNotionResponse> addNotion(
             @AuthenticationPrincipal Long userId,
             @RequestPart(value = "image", required = false) MultipartFile image,
+            @Parameter(
+                    description = "개념 페이지 요청 JSON",
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AddNotionRequest.class)
+                    )
+            )
             @RequestPart("request") @Valid AddNotionRequest request) throws IOException {
         AddNotionResponse result = adminService.addNotion(userId, image, request);
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_NOTION_SUCCESS, result);
