@@ -48,7 +48,6 @@ public class UserController {
         return BaseResponse.onSuccess(SuccessStatus.USER_UPDATE_SUCCESS, result);
     }
     @GetMapping("/me")
-    @Operation(summary = "사용자 마이페이지 조회 API", description = "사용자의 기본 정보와 해결한 문제 개수를 조회합니다.")
     public BaseResponse<UserResponseDTO.MyPageResponse> getMyPage(
             @AuthenticationPrincipal Long userId
     ) {

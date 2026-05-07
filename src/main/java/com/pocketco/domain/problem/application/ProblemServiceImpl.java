@@ -384,11 +384,11 @@ public class ProblemServiceImpl implements ProblemService {
         return userCodeRepository.findByUserAndProblemAndLanguage(user, problem, language)
                 .map(code -> TempStorageGetDTO.builder()
                         .userCodeId(code.getId())
-                        .sourceCode(code.getCode()) // 🕵️ 오빠 엔티티 필드명 'code'
+                        .sourceCode(code.getCode())
                         .language(code.getLanguage().getName())
                         .updatedAt(LocalDateTime.ofInstant(code.getUpdatedAt(), ZoneId.of("Asia/Seoul")))
                         .build())
-                .orElse(null); // 🕵️ 명세서대로 없으면 null 반환!
+                .orElse(null);
     }
 
     @Override
