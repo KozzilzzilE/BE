@@ -25,7 +25,6 @@ public class TopicController {
     private final TopicService topicService;
     private final ProblemService problemService;
 
-    @Operation(summary = "알고리즘 주제 목록 조회", description = "학습할 수 있는 모든 알고리즘 주제 목록을 반환합니다.")
     @GetMapping("")
     public BaseResponse<TopicListResponseDTO> getTopics() {
         TopicListResponseDTO response = topicService.getTopicList();
@@ -33,7 +32,6 @@ public class TopicController {
         return BaseResponse.onSuccess(SuccessStatus.TOPIC_LIST_SUCCESS, response);
     }
 
-    @Operation(summary = "선택한 주제의 문제 목록 조회", description = "특정 알고리즘 주제에 속한 문제들을 난이도순으로 조회합니다.")
     @GetMapping("/{topicId}/problems") // 주소: /api/v1/topics/{topicId}/problems
     public BaseResponse<ProblemListResponseDTO> getProblemsByTopic(
             @AuthenticationPrincipal Long userId,

@@ -75,13 +75,10 @@ public class AdminServiceImpl implements AdminService {
         return notionService.addNotionCode(notionId, languageId, request);
     }
 
-    // AdminServiceImpl.java
     @Override
     public AddExerciseAppliedCodeResponse addAppliedCode(Long userId, Long exerciseId, Long languageId, AddExerciseAppliedCodeRequest request) {
-        // 1. 유저 확인만 여기서 하고!
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        // 2. 실제 비즈니스 로직은 전문가인 appliedService에게 토스! 🚀🔥
         return appliedService.addAppliedCode(exerciseId, languageId, request);
     }
 }

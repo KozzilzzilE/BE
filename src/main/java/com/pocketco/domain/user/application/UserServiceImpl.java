@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
                         .map(p -> new MainScreenCalenderDTO(p.getDate(), p.getCount()))
                         .toList();
 
-        // KST 기준 이번 달을 알아내고, KST 기준 이번 달의 시작과 다음 달의 시작을 구하고 UTC로 변환하여 DB에서 값 비교
         ZoneId kst = ZoneId.of("Asia/Seoul");
         YearMonth thisMonth = YearMonth.now(kst);
         Instant startUtc = thisMonth

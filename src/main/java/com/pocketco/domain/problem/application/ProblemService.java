@@ -21,6 +21,5 @@ public interface ProblemService {
     ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable);
     TempStorageResponseDTO saveOrUpdateTempCode(Long userId, Long problemId, String language, ProblemRequestDTO.TempStorageRequest request);
     TempStorageGetDTO getTempCode(Long userId, Long problemId, String language);
-    // ProblemService.java
     List<RecentHistoryResponseDTO> getRecentHistories(Long userId);
 }
