@@ -30,6 +30,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.pocketco.domain.admin.dto.AdminRequestDTO;
+import com.pocketco.domain.admin.dto.AdminResponseDTO;
+import com.pocketco.domain.language.repository.LanguageRepository;
+import com.pocketco.global.exception.GeneralException;
+import com.pocketco.global.common.code.status.ErrorStatus;
+import com.pocketco.domain.language.exception.LanguageNotFoundException;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,6 +53,7 @@ public class NotionServiceImpl implements NotionService {
     private final FileStorageService fileStorageService;
     private final TopicRepository topicRepository;
     private final LanguageService languageService;
+    private final LanguageRepository languageRepository;
 
     @Override
     public AddNotionResponse addNotion(MultipartFile image, AddNotionRequest req) throws IOException {
@@ -156,4 +163,34 @@ public class NotionServiceImpl implements NotionService {
                 .notionCompleted(true)
                 .build();
     }
-}
+
+    @Override
+    public AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request) {
+
+        // 1. 해당 개념 페이지(Notion)가 존재하는지 확인
+        Notion notion = notionRepository.findById(notionId)
+                .orElseThrow(NotionNotExistsException::new);
+
+        // 2. 해당 언어(Language)가 존재하는지 확인
+        Language lang = languageRepository.findById(languageId)
+                .orElseThrow(LanguageNotFoundException::new);
+
+        // 3. 중복 검증
+        if (notionCodeRepository.existsByNotion_IdAndLanguage_Id(notionId, languageId)) {
+            throw new GeneralException(ErrorStatus.LEARNING_NOTION_CODE_ALREADY_EXISTS) {};
+        }
+
+        NotionCode savedCode = notionCodeRepository.save(
+                NotionCode.builder()
+                        .notion(notion)
+                        .language(lang)
+                        .content(request.getContent())
+                        .build()
+        );
+
+        return AdminResponseDTO.AddNotionCodeResponse.builder()
+                .notionId(notionId)
+                .languageName(lang.getName())
+                .notionCodeId(savedCode.getId())
+                .build();
+    }}

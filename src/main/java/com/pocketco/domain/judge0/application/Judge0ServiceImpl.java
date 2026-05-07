@@ -12,7 +12,6 @@ import com.pocketco.domain.problem.entity.TestCase;
 import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.user.entity.*;
 import com.pocketco.domain.user.exception.UserNotFoundException;
-import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.exception.HistoryNotFoundException;
 import com.pocketco.domain.user.repository.Judge0TokenRepository;
 import com.pocketco.domain.user.repository.UserRepository;
@@ -21,18 +20,19 @@ import com.pocketco.global.util.judge0.Judge0SlotLimiter;
 import com.pocketco.global.util.judge0.Judge0SubmitDispatcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.pocketco.domain.user.repository.UserCodeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
-
+import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.judge0.dto.*;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
-import com.pocketco.domain.language.exception.LanguageNotFoundException;
 import com.pocketco.domain.problem.repository.ProblemRepository;
 import com.pocketco.domain.problem.repository.TestCaseRepository;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import com.pocketco.domain.language.exception.LanguageNotFoundException;
 
 
 import java.util.List;
@@ -51,6 +51,8 @@ public class Judge0ServiceImpl implements Judge0Service {
     private final Judge0SlotLimiter judge0SlotLimiter;
     private final Judge0Client judge0Client;
     private final Judge0SubmitDispatcher judge0SubmitDispatcher;
+    private final UserCodeRepository userCodeRepository;
+
 
     @Override
     public List<Judge0LanguageResponse> getJudge0Languages() {
@@ -109,6 +111,8 @@ public class Judge0ServiceImpl implements Judge0Service {
                     .build();
             judge0TokenRepository.save(judge0Token);
         }
+
+        userCodeRepository.deleteByUserAndProblem(me, problem);
 
         TransactionSynchronizationManager.registerSynchronization(
                 new TransactionSynchronization() {

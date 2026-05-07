@@ -47,6 +47,7 @@ public enum ErrorStatus implements BaseErrorCode {
     LEARNING_APPLIED_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "APPLIED_409_CODE_ALREADY_EXISTS", "해당 페이지에 해당 언어의 코드는 이미 존재 합니다."),
     LEARNING_APPLIED_EXERCISE_TOPIC_NOT_EXISTS(HttpStatus.NOT_FOUND, "APPLIED_404_TOPIC_NOT_FOUND", "해당 알고리즘의 해당 응용 페이지가 없습니다."),
     LEARNING_APPLIED_EXERCISE_NOT_EXISTS(HttpStatus.NOT_FOUND, "APPLIED_404_NOT_FOUND", "해당 응용 페이지가 없습니다."),
+    LEARNING_APPLIED_CODE_ANSWER_DUPLICATE(HttpStatus.BAD_REQUEST, "APPLIED_400_ANSWER_DUPLICATE", "중복된 정답 번호가 존재합니다."),
 
     // --- problem ---
     PROBLEM_ALREADY_EXISTS(HttpStatus.CONFLICT, "PROBLEM_409_ALREADY_EXISTS", "이미 존재하는 문제 제목입니다."),
@@ -55,6 +56,7 @@ public enum ErrorStatus implements BaseErrorCode {
     PROBLEM_LANGUAGE_TIME_LIMIT_ALREADY_EXISTS(HttpStatus.CONFLICT, "PROBLEM_409_LANGUAGE_TIME_LIMIT_ALREADY_EXISTS", "해당 문제에 해당 언어의 시간 제한 데이터는 이미 존재 합니다."),
     PROBLEM_LANGUAGE_SOLUTION_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "PROBLEM_409_LANGUAGE_SOLUTION_CODE_ALREADY_EXISTS", "해당 문제에 해당 언어의 모범 코드는 이미 존재 합니다."),
     PROBLEM_INVALID_DIFFICULTY(HttpStatus.BAD_REQUEST, "PROBLEM_400_INVALID_DIFFICULTY", "잘못된 난이도 값입니다. (EASY, NORMAL, HARD, ALL 중 하나를 입력하세요)"),
+    TEMP_STORAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "PROBLEM_404_TEMP_STORAGE_NOT_FOUND", "임시 저장된 데이터가 없습니다."),
 
     // --- history & token ---
     HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "HISTORY_404_NOT_FOUND", "제출 기록을 찾을 수 없습니다."),

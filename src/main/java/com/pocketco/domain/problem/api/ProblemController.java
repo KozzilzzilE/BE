@@ -15,6 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.data.domain.Sort;
+import com.pocketco.domain.problem.dto.TempStorageResponseDTO;
+import com.pocketco.domain.problem.dto.ProblemRequestDTO;
+import com.pocketco.domain.user.entity.User;
+import com.pocketco.domain.problem.dto.TempStorageGetDTO;
+import com.pocketco.domain.problem.dto.RecentHistoryResponseDTO;
+import com.pocketco.domain.user.exception.UserNotFoundException;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -70,6 +77,44 @@ public class ProblemController {
         return BaseResponse.onSuccess(
                 status,
                 problemService.getProblemList(userId, difficulty, pageable)
+        );
+    }
+
+    @PutMapping("/{problemId}/temp-storages")
+    @Operation(summary = "코드 작성 임시 저장 API", description = "작성 중인 코드를 임시 저장하거나 기존 저장본을 업데이트합니다.")
+    public BaseResponse<TempStorageResponseDTO> saveTempCode(
+            @PathVariable(name = "problemId") Long problemId,
+            @RequestParam(name = "language") String language,
+            @RequestBody ProblemRequestDTO.TempStorageRequest request,
+            @AuthenticationPrincipal Long userId
+    ) {
+        TempStorageResponseDTO result = problemService.saveOrUpdateTempCode(userId, problemId, language, request);
+
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_SAVE_SUCCESS, result);
+    }
+    @GetMapping("/{problemId}/temp-storages")
+    @Operation(summary = "임시 저장 코드 조회 API", description = "저장된 코드가 있으면 반환하고, 없으면 null을 반환합니다.")
+    public BaseResponse<TempStorageGetDTO> getTempCode(
+            @PathVariable(name = "problemId") Long problemId,
+            @RequestParam(name = "language") String language,
+            @AuthenticationPrincipal Long userId
+    ) {
+        TempStorageGetDTO result = problemService.getTempCode(userId, problemId, language);
+
+        return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_GET_SUCCESS, result);
+    }
+
+    @GetMapping("/recent-histories")
+    public BaseResponse<List<RecentHistoryResponseDTO>> getRecentHistories(
+            @AuthenticationPrincipal Long userId
+    ) {
+        if (userId == null) {
+            throw new UserNotFoundException();
+        }
+
+        return BaseResponse.onSuccess(
+                SuccessStatus.PROBLEM_RECENT_HISTORY_SUCCESS,
+                problemService.getRecentHistories(userId)
         );
     }
 }

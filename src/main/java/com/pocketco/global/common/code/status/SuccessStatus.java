@@ -35,7 +35,10 @@ public enum SuccessStatus implements BaseCode {
     ADMIN_ADD_PROBLEM_SUCCESS(HttpStatus.CREATED, "ADMIN_204", "코딩 문제 추가 성공했습니다."),
     ADMIN_JUDGE0_LANGUAGE_LIST(HttpStatus.OK, "ADMIN_205", "judge0 언어 목록 조회 성공했습니다."),
     ADMIN_ADD_PROBLEM_LANGUAGE_SETTING_SUCCESS(HttpStatus.CREATED, "ADMIN_206", "코딩 문제 언어 설정 추가 성공했습니다."),
+    ADMIN_NOTION_CODE_SUCCESS(HttpStatus.OK, "ADMIN_207", "개념 학습 페이지 예제 코드 추가 성공"),
+    ADMIN_APPLIED_CODE_SUCCESS(HttpStatus.OK, "ADMIN_208", "응용 학습 페이지 빈칸 코드와 보기 추가 성공"),
     ADMIN_ADD_CS_PROBLEM_SUCCESS(HttpStatus.CREATED, "ADMIN_209", "CS 문제 추가 성공했습니다."),
+
 
     // topic
     TOPIC_LIST_SUCCESS(HttpStatus.OK, "TOPIC_200", "알고리즘 목록 조회 성공"),
@@ -55,8 +58,11 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_RUN_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_204", "문제 코드 실행 결과 조회 성공"),
     PROBLEM_SUBMIT_RESULT_SUCCESS(HttpStatus.OK, "PROBLEM_205", "문제 코드 채점 결과 조회 성공"),
     PROBLEM_SUBMIT_HISTORY_SUCCESS(HttpStatus.OK, "PROBLEM_206", "사용자 문제 제출 기록 조회 성공"),
+    PROBLEM_TEMP_SAVE_SUCCESS(HttpStatus.OK, "PROBLEM_207", "임시 저장이 완료되었습니다."),
+    PROBLEM_TEMP_GET_SUCCESS(HttpStatus.OK, "PROBLEM_208", "임시 저장된 코드를 성공적으로 불러왔습니다."),
     PROBLEM_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_209", "전체 문제 목록 조회를 성공했습니다."),
     PROBLEM_DIFFICULTY_LIST_SUCCESS(HttpStatus.OK, "PROBLEM_210", "난이도별 문제 목록 조회를 성공했습니다."),
+    PROBLEM_RECENT_HISTORY_SUCCESS(HttpStatus.OK, "PROBLEM_211", "최근 제출 기록 조회를 성공했습니다."),
 
     // bookmark
     BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "BOOKMARK_200", "찜 추가 성공"),

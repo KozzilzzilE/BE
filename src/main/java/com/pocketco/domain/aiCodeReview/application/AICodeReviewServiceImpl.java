@@ -7,11 +7,11 @@ import com.pocketco.domain.aiCodeReview.event.AICodeReviewRequestedEvent;
 import com.pocketco.domain.aiCodeReview.exception.HistoryAccessDeniedException;
 import com.pocketco.domain.user.entity.History;
 import com.pocketco.domain.user.exception.HistoryNotFoundException;
-import com.pocketco.domain.user.repository.HistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.pocketco.domain.user.repository.HistoryRepository;
 
 @Service
 @RequiredArgsConstructor

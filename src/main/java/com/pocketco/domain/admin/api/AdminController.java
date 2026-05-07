@@ -6,7 +6,6 @@ import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.global.common.code.status.SuccessStatus;
 import com.pocketco.global.common.response.BaseResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -86,5 +84,29 @@ public class AdminController {
             @RequestBody @Valid AddCSProblemRequest request) {
         Long result = adminService.addCSProblem(userId, request);
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_CS_PROBLEM_SUCCESS, result);
+    }
+
+    @PostMapping("/notions/{notionId}/notion-codes/{languageId}/additions")
+    public BaseResponse<AdminResponseDTO.AddNotionCodeResponse> addNotionCode(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable(name = "notionId") Long notionId,
+            @PathVariable(name = "languageId") Long languageId,
+            @RequestBody @Valid AdminRequestDTO.AddNotionCodeRequest request) {
+
+        AdminResponseDTO.AddNotionCodeResponse result = adminService.addNotionCode(userId, notionId, languageId, request);
+
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_NOTION_CODE_SUCCESS, result);
+    }
+
+    @PostMapping("/applications/{exerciseId}/applied-codes/{languageId}/additions")
+    public BaseResponse<AddExerciseAppliedCodeResponse> addAppliedCode(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable(name = "exerciseId") Long exerciseId,
+            @PathVariable(name = "languageId") Long languageId,
+            @RequestBody @Valid AddExerciseAppliedCodeRequest request) {
+
+        AddExerciseAppliedCodeResponse result = adminService.addAppliedCode(userId, exerciseId, languageId, request);
+
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_APPLIED_CODE_SUCCESS, result);
     }
 }

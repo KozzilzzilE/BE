@@ -19,7 +19,6 @@ import com.pocketco.domain.topic.repository.TopicRepository;
 import com.pocketco.domain.user.entity.HistoryStatus;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import com.pocketco.domain.user.repository.BookmarkProblemRepository;
-import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,12 +26,23 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.pocketco.domain.problem.exception.ProblemInvalidDifficultyException;
+import com.pocketco.domain.problem.dto.TempStorageResponseDTO;
+import com.pocketco.domain.problem.dto.ProblemRequestDTO;
+import com.pocketco.domain.user.entity.UserCode;
+import com.pocketco.domain.user.repository.UserCodeRepository;
+import com.pocketco.domain.user.entity.User;
+import com.pocketco.domain.user.repository.HistoryRepository;
+import com.pocketco.domain.user.entity.History;
+import java.time.ZoneId;
+import java.time.LocalDateTime;
+
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+
 public class ProblemServiceImpl implements ProblemService {
     private final ProblemRepository problemRepository;
     private final TestCaseRepository testCaseRepository;
@@ -43,6 +53,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final UserRepository userRepository;
     private final TimeLimitRepository timeLimitRepository;
     private final BookmarkProblemRepository bookmarkRepository;
+    private final UserCodeRepository userCodeRepository;
 
     @Override
     public List<AddProblemResponse> addProblems(AddProblemRequests reqs) {
@@ -110,6 +121,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .languageSettingCount(codes.size())
                 .build();
     }
+
     @Override
     @Transactional(readOnly = true)
     public ProblemListResponseDTO getProblemListByTopic(Long topicId, Long userId) {
@@ -157,6 +169,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .problems(resultDTOs)
                 .build();
     }
+
     @Override
     @Transactional(readOnly = true)
     public ProblemAllResponseDTO.ProblemListResponse getProblemList(Long userId, String difficulty, Pageable pageable) {
@@ -329,8 +342,78 @@ public class ProblemServiceImpl implements ProblemService {
                 .build();
     }
 
-}
+    @Override
+    public TempStorageResponseDTO saveOrUpdateTempCode(Long userId, Long problemId, String languageName, ProblemRequestDTO.TempStorageRequest request) {
 
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Problem problem = problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
+        Language language = languageService.findLanguageWithName(languageName);
 
+        UserCode userCode = userCodeRepository.findByUserAndProblemAndLanguage(user, problem, language)
+                .map(existingCode -> {
+                    // [Update] 이미 존재하면 덮어쓰기
+                    existingCode.setCode(request.getSourceCode());
+                    return existingCode;
+                })
+                .orElseGet(() -> {
+                    // [Save] 존재하지 않으면 새로 생성
+                    return UserCode.builder()
+                            .user(user)
+                            .problem(problem)
+                            .language(language)
+                            .code(request.getSourceCode())
+                            .build();
+                });
 
+        UserCode saved = userCodeRepository.save(userCode);
+
+        return TempStorageResponseDTO.builder()
+                .userCodeId(saved.getId())
+                .updatedAt(LocalDateTime.ofInstant(saved.getUpdatedAt(), ZoneId.of("Asia/Seoul")))
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TempStorageGetDTO getTempCode(Long userId, Long problemId, String languageName) {
+
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Problem problem = problemRepository.findById(problemId).orElseThrow(ProblemNotFoundException::new);
+        Language language = languageService.findLanguageWithName(languageName);
+
+        return userCodeRepository.findByUserAndProblemAndLanguage(user, problem, language)
+                .map(code -> TempStorageGetDTO.builder()
+                        .userCodeId(code.getId())
+                        .sourceCode(code.getCode()) // 🕵️ 오빠 엔티티 필드명 'code'
+                        .language(code.getLanguage().getName())
+                        .updatedAt(LocalDateTime.ofInstant(code.getUpdatedAt(), ZoneId.of("Asia/Seoul")))
+                        .build())
+                .orElse(null); // 🕵️ 명세서대로 없으면 null 반환!
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RecentHistoryResponseDTO> getRecentHistories(Long userId) {
+
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        List<History> histories = historyRepository.findTop10ByUser_IdOrderByCreatedAtDesc(userId);
+
+        if (histories == null || histories.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return histories.stream()
+                .map(history -> RecentHistoryResponseDTO.builder()
+                        .historyId(history.getId())
+                        .problemId(history.getProblem().getId())
+                        .title(history.getProblem().getTitle())
+                        .sourceCode(history.getSourceCode())
+                        .status(history.getStatus().name())
+                        .language(history.getLanguage().getName())
+                        .createdAt(LocalDateTime.ofInstant(history.getCreatedAt(), ZoneId.of("Asia/Seoul")))
+                        .build())
+                .toList();
+    }
+    }
 
