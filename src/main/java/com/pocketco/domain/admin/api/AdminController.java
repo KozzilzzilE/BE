@@ -6,7 +6,6 @@ import com.pocketco.domain.judge0.dto.Judge0LanguageResponse;
 import com.pocketco.global.common.code.status.SuccessStatus;
 import com.pocketco.global.common.response.BaseResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController

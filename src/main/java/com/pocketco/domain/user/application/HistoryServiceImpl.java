@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.pocketco.domain.user.repository.UserRepository; // 이 근처에 넣어줘!
 import com.pocketco.domain.user.repository.HistoryRepository;
 
 import java.util.List;

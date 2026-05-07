@@ -56,8 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 try {
                     Jws<Claims> jws = jwt.parse(token);
 
-                    Long userId = Long.valueOf(jws.getBody().getSubject());
-                    String role = (String) jws.getBody().get("role");
+                    Long userId = Long.valueOf(jws.getPayload().getSubject());
+                    String role = (String) jws.getPayload().get("role");
 
                     // 1) 이후 컨트롤러에서 @RequestAttribute 쓰려면 계속 세팅
                     req.setAttribute("userId", userId);

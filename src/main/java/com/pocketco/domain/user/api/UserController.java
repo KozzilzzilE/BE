@@ -7,6 +7,7 @@ import com.pocketco.global.common.response.BaseResponse;
 import com.pocketco.domain.user.dto.UserRequestDTO;
 import com.pocketco.domain.user.dto.UserUpdateResponseDTO;
 import com.pocketco.domain.user.dto.UserResponseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ public class UserController {
     @PatchMapping("/me/languages")
     public BaseResponse<UserUpdateResponseDTO> updateLanguage(
             @AuthenticationPrincipal Long userId,
-            @RequestBody UserRequestDTO.UpdateLanguageRequest request) {
+            @RequestBody @Valid UserRequestDTO.UpdateLanguageRequest request) {
 
         UserUpdateResponseDTO result = userService.updateLanguage(userId, request.language());
         return BaseResponse.onSuccess(SuccessStatus.LANGUAGE_UPDATE_SUCCESS, result);
@@ -41,7 +42,7 @@ public class UserController {
     @PatchMapping("/me/names")
     public BaseResponse<UserUpdateResponseDTO> updateNickname(
             @AuthenticationPrincipal Long userId,
-            @RequestBody UserRequestDTO.UpdateNicknameRequest request) {
+            @RequestBody @Valid UserRequestDTO.UpdateNicknameRequest request) {
 
         UserUpdateResponseDTO result = userService.updateNickname(userId, request.nickname());
         return BaseResponse.onSuccess(SuccessStatus.USER_UPDATE_SUCCESS, result);

@@ -10,7 +10,6 @@ import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.learning.converter.LearningAppliedExerciseConverter;
 import com.pocketco.domain.learning.dto.LearningAppliedCompletionResponse;
-import com.pocketco.domain.learning.repository.applied.*;
 import com.pocketco.domain.learning.dto.LearningAppliedExercise;
 import com.pocketco.domain.learning.dto.LearningAppliedExerciseResponse;
 import com.pocketco.domain.learning.entity.applied.AppliedBlankProblem;
@@ -43,7 +42,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -139,6 +137,18 @@ public class AppliedServiceImpl implements AppliedService {
         }
         Topic topic = topicRepository.findById(req.topicId()).orElseThrow(TopicNotFoundException::new);
 
+        //  정답 번호(answer) 중복 체크 로직
+        for (AddAppliedCodeRequest reqCode : req.codes()) {
+            List<Integer> answers = reqCode.blanks().stream()
+                    .map(AddAppliedBlank::answer)
+                    .filter(java.util.Objects::nonNull)
+                    .toList();
+            long uniqueCount = answers.stream().distinct().count();
+            if (answers.size() != uniqueCount) {
+                throw new AppliedCodeAnswerDuplicateException();
+            }
+        }
+
         AppliedExercise appliedExercise = AppliedExercise.builder()
                 .orderNo(req.orderNo())
                 .title(req.title())
@@ -160,8 +170,7 @@ public class AppliedServiceImpl implements AppliedService {
                         .build())
                 .toList();
 
-        Iterable<AppliedCode> savedIterable = appliedCodeRepository.saveAll(codes);
-        List<AppliedCode> savedCodes = StreamSupport.stream(savedIterable.spliterator(), false).toList();
+        List<AppliedCode> savedCodes = appliedCodeRepository.saveAll(codes);
 
         Map<Long, AppliedCode> savedCodeByLanguageId = savedCodes.stream()
                 .collect(Collectors.toMap(c -> c.getLanguage().getId(), Function.identity()));
@@ -173,7 +182,6 @@ public class AppliedServiceImpl implements AppliedService {
             // 안전상 체크 가능
             if (savedCode == null) throw new IllegalStateException("Saved code not found");
 
-            // 추후에 정답(answer 중복이나, 빈칸보다 큰 수 등 다양한 조건들 검증 코드 추가)
             for (AddAppliedBlank blank : reqCode.blanks()) {
                 blankEntities.add(AppliedBlankProblem.builder()
                         .exerciseCode(savedCode)
