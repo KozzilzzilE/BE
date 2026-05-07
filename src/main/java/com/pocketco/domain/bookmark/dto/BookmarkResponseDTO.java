@@ -1,7 +1,6 @@
 package com.pocketco.domain.bookmark.dto;
 
 import lombok.Builder;
-import java.util.List;
 
 public class BookmarkResponseDTO {
 
