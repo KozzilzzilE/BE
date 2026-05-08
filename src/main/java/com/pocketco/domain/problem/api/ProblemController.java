@@ -63,7 +63,6 @@ public class ProblemController {
     }
 
     @GetMapping("")
-    @Operation(summary = "전체 코딩 문제 목록 조회 API", description = "난이도 필터링 및 페이징이 포함된 문제 목록을 조회합니다.")
     public BaseResponse<ProblemAllResponseDTO.ProblemListResponse> getProblems(
             @AuthenticationPrincipal Long userId,
             @RequestParam(value = "difficulty", required = false, defaultValue = "ALL") String difficulty,
@@ -81,7 +80,6 @@ public class ProblemController {
     }
 
     @PutMapping("/{problemId}/temp-storages")
-    @Operation(summary = "코드 작성 임시 저장 API", description = "작성 중인 코드를 임시 저장하거나 기존 저장본을 업데이트합니다.")
     public BaseResponse<TempStorageResponseDTO> saveTempCode(
             @PathVariable(name = "problemId") Long problemId,
             @RequestParam(name = "language") String language,
@@ -93,7 +91,6 @@ public class ProblemController {
         return BaseResponse.onSuccess(SuccessStatus.PROBLEM_TEMP_SAVE_SUCCESS, result);
     }
     @GetMapping("/{problemId}/temp-storages")
-    @Operation(summary = "임시 저장 코드 조회 API", description = "저장된 코드가 있으면 반환하고, 없으면 null을 반환합니다.")
     public BaseResponse<TempStorageGetDTO> getTempCode(
             @PathVariable(name = "problemId") Long problemId,
             @RequestParam(name = "language") String language,
