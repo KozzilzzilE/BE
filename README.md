@@ -12,7 +12,7 @@ Spring Boot, MySQL, Amazon RDS, Amazon S3, Firebase Auth, Judge0 API, Gemini API
 # 시스템 아키텍처
 
 # ERD
-<img width="3870" height="1942" alt="mobile (1)" src="https://github.com/user-attachments/assets/8819f9db-3857-4024-8ff5-5a85afdc6c2d" />
+![ERD](./assets/ERD.png)
 
 # 주요 기능
 ### 사용자 관리
@@ -40,7 +40,7 @@ Spring Boot, MySQL, Amazon RDS, Amazon S3, Firebase Auth, Judge0 API, Gemini API
 - GitHub Actions 기반 CI/CD 자동화
 - Amazon EC2 및 RDS 기반 배포 환경 구축
 # Swagger/API
-<img width="1348" height="3387" alt="589553419-0de04dc8-409f-4f03-bfdb-66143d50aa15" src="https://github.com/user-attachments/assets/12183da0-4a34-402b-bb65-f96f497f8666" />
+![Swagger](./assets/Swagger.png)
 
 # 팀원 역할
 ### 김완수(okjunges)
