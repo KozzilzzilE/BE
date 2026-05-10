@@ -12,7 +12,7 @@ Java, SQL
 ### 주요 기술
 Spring Boot, MySQL, Amazon RDS, Amazon S3, Firebase Auth, Judge0 API, Gemini API, Docker Compose, GitHub Actions
 # 시스템 아키텍처
-![ArchitectureDiagram](./assets/Architecture Diagram.png)
+![ArchitectureDiagram](./assets/ArchitectureDiagram.png)
 
 # ERD
 ![ERD](./assets/ERD.png)
