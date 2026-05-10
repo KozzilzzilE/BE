@@ -21,7 +21,7 @@ Spring Boot, MySQL, Amazon RDS, Amazon S3, Firebase Auth, Judge0 API, Gemini API
 ### 사용자 인증 및 관리
 - Firebase Auth 기반 회원가입 및 로그인 
 - 사용자 프로필 및 마이페이지 조회 
-- 사용자 이름 및 언어 설정 관리 
+- 사용자 이름, 프로필 이미지 및 언어 설정 관리 
 - 사용자별 학습 및 문제 풀이 기록 저장
 ### 알고리즘 학습 기능
 - 알고리즘 개념 학습 콘텐츠 제공 
