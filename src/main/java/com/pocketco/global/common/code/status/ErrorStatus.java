@@ -65,6 +65,9 @@ public enum ErrorStatus implements BaseErrorCode {
     // --- Bookmark ---
     BOOKMARK_ALREADY_EXISTS(HttpStatus.CONFLICT, "BOOKMARK_409_ALREADY_EXISTS", "이미 찜한 문제입니다."),
     BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "BOOKMARK_404_NOT_FOUND", "찜한 기록을 찾을 수 없습니다."),
+
+    // --- Public Profile Image ---
+    PUBLIC_PROFILE_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "PUBLIC_PROFILE_IMAGE_404_NOT_FOUND", "공개된 프로필 사진을 찾을 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;

@@ -120,4 +120,12 @@ public class AdminController {
 
         return BaseResponse.onSuccess(SuccessStatus.ADMIN_APPLIED_CODE_SUCCESS, result);
     }
+
+    @PostMapping(value = "/public-profile/additions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<AddPublicProfileImageResponse> addNotion(
+            @AuthenticationPrincipal Long userId,
+            @RequestPart(value = "image") MultipartFile image) throws IOException {
+        AddPublicProfileImageResponse result = adminService.addPublicProfileImage(userId, image);
+        return BaseResponse.onSuccess(SuccessStatus.ADMIN_ADD_PUBLIC_PROFILE_IMAGE_SUCCESS, result);
+    }
 }

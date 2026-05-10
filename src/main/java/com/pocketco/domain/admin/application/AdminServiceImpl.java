@@ -8,6 +8,8 @@ import com.pocketco.domain.language.application.LanguageService;
 import com.pocketco.domain.learning.application.AppliedService;
 import com.pocketco.domain.learning.application.NotionService;
 import com.pocketco.domain.topic.application.TopicService;
+import com.pocketco.domain.user.application.PublicProfileImageService;
+import com.pocketco.domain.user.application.UserService;
 import com.pocketco.domain.user.repository.UserRepository;
 import com.pocketco.domain.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class AdminServiceImpl implements AdminService {
     private final ProblemService problemService;
     private final Judge0Service judge0Service;
     private final CSProblemService csProblemService;
+    private final PublicProfileImageService publicProfileImageService;
     private final UserRepository userRepository;
 
     @Override
@@ -80,5 +83,12 @@ public class AdminServiceImpl implements AdminService {
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         return appliedService.addAppliedCode(exerciseId, languageId, request);
+    }
+
+    @Override
+    public AddPublicProfileImageResponse addPublicProfileImage(Long userId, MultipartFile image) throws IOException {
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        return publicProfileImageService.addPublicProfileImage(image);
     }
 }
