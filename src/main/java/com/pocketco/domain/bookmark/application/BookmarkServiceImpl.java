@@ -5,6 +5,8 @@ import com.pocketco.domain.bookmark.entity.Bookmark;
 import com.pocketco.domain.bookmark.exception.BookmarkAlreadyExistsException;
 import com.pocketco.domain.bookmark.exception.BookmarkNotFoundException;
 import com.pocketco.domain.bookmark.repository.BookmarkRepository;
+import com.pocketco.domain.user.entity.HistoryStatus;
+import com.pocketco.domain.user.repository.HistoryRepository;
 import com.pocketco.domain.problem.entity.Problem;
 import com.pocketco.domain.problem.exception.ProblemNotFoundException;
 import com.pocketco.domain.problem.repository.ProblemRepository;
@@ -25,6 +27,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final UserRepository userRepository;
     private final ProblemRepository problemRepository;
+    private final HistoryRepository historyRepository;
 
     public BookmarkToggleResponse addBookmark(Long userId, Long problemId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -65,12 +68,18 @@ public class BookmarkServiceImpl implements BookmarkService {
                         case "HARD" -> "어려움";
                         default -> "미정";
                     };
+                    boolean isCompleted = historyRepository.existsByUser_IdAndProblem_IdAndStatus(
+                            user.getId(),
+                            p.getId(),
+                            HistoryStatus.ACCEPTED
+                    );
                     return BookmarkListResponse.builder()
                             .problemId(p.getId())
                             .title(p.getTitle())
                             .difficulty(p.getDifficulty())
                             .difficultyDisplayName(displayName)
                             .bookmarkCount(bookmarkRepository.countByProblem(p))
+                            .isCompleted(isCompleted)
                             .build();
                 }).toList();
     }
