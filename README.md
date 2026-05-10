@@ -1,5 +1,5 @@
 # 프로젝트 소개
- PocketCo는 시공간의 제약 없이 스마트폰으로 알고리즘을 학습하는 모바일 안드로이드 애플리케이션입니다. 기존 PC 환경의 한계를 벗어나 언제 어디서든 간편하게 코드를 작성하고 제출할 수 있습니다.
+PocketCo는 시공간의 제약 없이 스마트폰으로 알고리즘을 학습하는 모바일 안드로이드 애플리케이션입니다. 기존 PC 환경의 한계를 벗어나 언제 어디서든 간편하게 코드를 작성하고 제출할 수 있습니다.
 초보자도 쉽게 학습할 수 있도록 다양한 알고리즘을 '개념-응용-문제'의 3단계 학습 커리큘럼을 통해 제공하며, 코드를 제출하면 AI가 실시간으로 분석하여 최적화 코드와 맞춤형 피드백을 제시해 줍니다.
 또한, 꾸준한 성장을 돕는 직관적인 연속 학습 기록 시스템으로 동기부여 효과를 더했습니다. PocketCo를 활용하여 자투리 시간을 알고리즘 학습 시간으로 만들 수 있습니다.
 # 기술 스택 (Back-end)
@@ -12,7 +12,7 @@ Java, SQL
 ### 주요 기술
 Spring Boot, MySQL, Amazon RDS, Amazon S3, Firebase Auth, Judge0 API, Gemini API, Docker Compose, GitHub Actions
 # 시스템 아키텍처
-![ArchitectureDiagram](./assets/Architecture Diagram.png)
+![ArchitectureDiagram](./assets/ArchitectureDiagram.png)
 
 # ERD
 ![ERD](./assets/ERD.png)
