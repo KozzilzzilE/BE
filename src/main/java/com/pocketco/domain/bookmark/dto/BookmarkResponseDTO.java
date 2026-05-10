@@ -13,6 +13,7 @@ public class BookmarkResponseDTO {
             String title,
             String difficulty,
             String difficultyDisplayName,
-            Long bookmarkCount
+            Long bookmarkCount,
+            boolean isCompleted
     ) {}
 }
