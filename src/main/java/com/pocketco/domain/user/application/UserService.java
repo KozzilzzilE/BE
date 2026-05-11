@@ -9,5 +9,5 @@ public interface UserService {
     UserResponseDTO.MyPageResponse getMyPage(Long userId);
 
     UserUpdateResponseDTO updateLanguage(Long userId, String language);
-    UserUpdateResponseDTO updateNickname(Long userId, String nickname);
+    UserUpdateResponseDTO updateProfile(Long userId, String nickname, Long profileId);
 }

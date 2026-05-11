@@ -4,5 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 
 public class UserRequestDTO {
     public record UpdateLanguageRequest(@NotBlank String language) {}
-    public record UpdateNicknameRequest(@NotBlank String nickname) {}
+    public record UpdateProfileRequest(
+            @NotBlank String nickname,
+            Long profileId
+    ) {}
 }

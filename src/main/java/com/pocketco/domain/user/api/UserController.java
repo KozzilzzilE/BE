@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -38,15 +37,16 @@ public class UserController {
         return BaseResponse.onSuccess(SuccessStatus.LANGUAGE_UPDATE_SUCCESS, result);
     }
 
-    // 2. 사용자 닉네임 변경
-    @PatchMapping("/me/names")
-    public BaseResponse<UserUpdateResponseDTO> updateNickname(
+    // 2. 사용자 프로필 변경
+    @PatchMapping("/me/profiles")
+    public BaseResponse<UserUpdateResponseDTO> updateProfile(
             @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid UserRequestDTO.UpdateNicknameRequest request) {
+            @RequestBody @Valid UserRequestDTO.UpdateProfileRequest request) {
 
-        UserUpdateResponseDTO result = userService.updateNickname(userId, request.nickname());
+        UserUpdateResponseDTO result = userService.updateProfile(userId, request.nickname(), request.profileId());
         return BaseResponse.onSuccess(SuccessStatus.USER_UPDATE_SUCCESS, result);
     }
+
     @GetMapping("/me")
     public BaseResponse<UserResponseDTO.MyPageResponse> getMyPage(
             @AuthenticationPrincipal Long userId

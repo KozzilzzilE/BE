@@ -35,11 +35,16 @@ public class User extends BaseEntity {
     @JoinColumn(name = "language_id", nullable = false)
     private Language language;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id")
+    private PublicProfileImage profileImage;
+
     public void updateLanguage(Language language) {
         this.language = language;
     }
 
-    public void updateNickname(String nickname) {
+    public void updateProfile(String nickname, PublicProfileImage profileImage) {
         this.nickname = nickname;
+        this.profileImage = profileImage;
     }
 }
