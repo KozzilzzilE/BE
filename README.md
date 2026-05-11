@@ -10,7 +10,7 @@ IntelliJ IDEA, GitHub, MySQL Workbench, DataGrip, Postman, Swagger
 ### 개발 언어
 Java, SQL
 ### 주요 기술
-Spring Boot, MySQL, Amazon RDS, Amazon S3, Firebase Auth, Judge0 API, Gemini API, Docker Compose, GitHub Actions
+Spring Boot, Firebase Auth, MySQL, Amazon RDS, Amazon S3, Amazon ECR, Docker, Docker Compose, GitHub Actions, Judge0 API, Gemini API
 # 시스템 아키텍처
 ![ArchitectureDiagram](./assets/ArchitectureDiagram.png)
 
