@@ -38,6 +38,7 @@ public enum SuccessStatus implements BaseCode {
     ADMIN_NOTION_CODE_SUCCESS(HttpStatus.OK, "ADMIN_207", "개념 학습 페이지 예제 코드 추가 성공"),
     ADMIN_APPLIED_CODE_SUCCESS(HttpStatus.OK, "ADMIN_208", "응용 학습 페이지 빈칸 코드와 보기 추가 성공"),
     ADMIN_ADD_CS_PROBLEM_SUCCESS(HttpStatus.CREATED, "ADMIN_209", "CS 문제 추가 성공했습니다."),
+    ADMIN_ADD_PUBLIC_PROFILE_IMAGE_SUCCESS(HttpStatus.CREATED, "ADMIN_210", "공개 프로필 추가 성공했습니다."),
 
 
     // topic

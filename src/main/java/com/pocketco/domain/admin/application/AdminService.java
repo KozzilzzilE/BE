@@ -18,5 +18,5 @@ public interface AdminService {
     Long addCSProblem(Long userId, AddCSProblemRequest request);
     AdminResponseDTO.AddNotionCodeResponse addNotionCode(Long userId, Long notionId, Long languageId, AdminRequestDTO.AddNotionCodeRequest request);
     AddExerciseAppliedCodeResponse addAppliedCode(Long userId, Long exerciseId, Long languageId, AddExerciseAppliedCodeRequest request);
-
+    AddPublicProfileImageResponse addPublicProfileImage(Long userId, MultipartFile image) throws IOException;
 }
