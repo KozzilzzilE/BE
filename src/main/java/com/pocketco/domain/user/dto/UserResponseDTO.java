@@ -1,6 +1,7 @@
 package com.pocketco.domain.user.dto;
 
 import lombok.*;
+import java.util.List;
 
 public class UserResponseDTO {
 
@@ -9,9 +10,20 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MyPageResponse {
+        private String imgUrl;
         private String email;
         private String nickname;
         private String language;
         private Long solvedProblemCount;
     }
+    @Builder
+    public record ProfileImageResponse(
+            Long profileId,
+            String imgUrl
+    ) {}
+
+    @Builder
+    public record ProfileImageListResponse(
+            List<ProfileImageResponse> images
+    ) {}
 }

@@ -1,5 +1,6 @@
 package com.pocketco.domain.user.api;
 
+import com.pocketco.domain.user.application.PublicProfileImageService;
 import com.pocketco.domain.user.application.UserService;
 import com.pocketco.domain.user.dto.MainScreenResponse;
 import com.pocketco.global.common.code.status.SuccessStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final PublicProfileImageService publicProfileImageService;
 
     @GetMapping("/main")
     public BaseResponse<MainScreenResponse> getMainScreen(@AuthenticationPrincipal Long userId) {
@@ -56,6 +58,10 @@ public class UserController {
                 userService.getMyPage(userId)
         );
     }
-
+    @GetMapping("/profile-images")
+    public BaseResponse<UserResponseDTO.ProfileImageListResponse> getProfileImages() {
+        UserResponseDTO.ProfileImageListResponse result = publicProfileImageService.getProfileImages();
+        return BaseResponse.onSuccess(SuccessStatus.USER_PROFILE_IMAGE_LIST_SUCCESS, result);
+    }
 
 }
