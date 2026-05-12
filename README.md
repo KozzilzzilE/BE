@@ -51,6 +51,7 @@ Spring Boot, Firebase Auth, MySQL, Amazon RDS, Amazon S3, Amazon ECR, Docker, Do
 - 월별 문제 풀이 개수 및 학습 기록 관리
 ### 관리자 기능
 - 언어 및 알고리즘 데이터 관리 
+- 사용자가 사용할 수 있는 공개 프로필 이미지 관리
 - 개념 학습 및 응용 학습 콘텐츠 등록 
 - 코딩 문제 및 CS 문제 등록 
 - Judge0 언어 목록 및 채점 환경 관리 
