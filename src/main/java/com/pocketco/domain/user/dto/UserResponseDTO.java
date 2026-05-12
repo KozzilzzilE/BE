@@ -10,6 +10,7 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MyPageResponse {
+        private String imgUrl;
         private String email;
         private String nickname;
         private String language;

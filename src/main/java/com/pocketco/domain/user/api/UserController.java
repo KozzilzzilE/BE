@@ -61,7 +61,7 @@ public class UserController {
     @GetMapping("/profile-images")
     public BaseResponse<UserResponseDTO.ProfileImageListResponse> getProfileImages() {
         UserResponseDTO.ProfileImageListResponse result = publicProfileImageService.getProfileImages();
-        return BaseResponse.onSuccess(SuccessStatus.USER_MYPAGE_SUCCESS, result);
+        return BaseResponse.onSuccess(SuccessStatus.USER_PROFILE_IMAGE_LIST_SUCCESS, result);
     }
 
 }
