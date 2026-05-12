@@ -120,8 +120,15 @@ public class UserServiceImpl implements UserService {
         // 2. 고유하게 해결한 문제 수 조회
         long solvedCount = historyRepository.countSolvedProblemUnique(userId);
 
+        String profileImageUrl = null;
+        if (user.getProfileImage() != null) {
+            // DB의 경로를 접근 가능한 Full URL로 변환!
+            profileImageUrl = fileStorageService.getUrl(user.getProfileImage().getImgUrl());
+        }
+
         // 3. DTO 조립
         return UserResponseDTO.MyPageResponse.builder()
+                .imgUrl(profileImageUrl)
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .language(user.getLanguage() != null ? user.getLanguage().getName() : "JAVA")

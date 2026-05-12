@@ -23,6 +23,7 @@ public enum SuccessStatus implements BaseCode {
     USER_UPDATE_SUCCESS(HttpStatus.OK, "USER_201", "사용자 이름 변경이 완료되었습니다."),
     LANGUAGE_UPDATE_SUCCESS(HttpStatus.OK, "USER_201", "메인 언어가 성공적으로 변경되었습니다."),
     USER_MYPAGE_SUCCESS(HttpStatus.OK, "USER_203", "사용자 마이페이지 조회 성공했습니다."),
+    USER_PROFILE_IMAGE_LIST_SUCCESS(HttpStatus.OK, "USER_204", "공개 프로필 이미지 목록 조회 성공했습니다."),
 
     // language
     LANGUAGES_LISTS_SUCCESS(HttpStatus.OK, "LANGUAGE_200", "사용가능한 언어 리스트 조회를 성공했습니다."),
