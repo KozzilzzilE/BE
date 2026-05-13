@@ -36,10 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.domain.language.exception.LanguageNotFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -100,7 +97,12 @@ public class AppliedServiceImpl implements AppliedService {
                     AppliedCode appliedCode = appliedCodeMap.get(exerciseId);
                     List<AppliedBlankProblem> appliedBlanks = null;
                     if (appliedCode != null) {
-                        appliedBlanks = appliedBlankMap.get(appliedCode.getId());
+                        List<AppliedBlankProblem> originalBlanks = appliedBlankMap.get(appliedCode.getId());
+
+                        if (originalBlanks != null) {
+                            appliedBlanks = new ArrayList<>(originalBlanks);
+                            Collections.shuffle(appliedBlanks);
+                        }
                     }
                     boolean completed = completedAppliedIds.contains(exerciseId);
 
