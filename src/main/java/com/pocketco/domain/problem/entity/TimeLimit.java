@@ -19,6 +19,7 @@ public class TimeLimit extends BaseEntity {
     @Column(name = "time_limit_id")
     private Long id;
 
+    @Builder.Default
     @Column(name = "time_limit_ms", nullable = false)
     @ColumnDefault("1000")
     private Integer timeLimitMs = 1000;

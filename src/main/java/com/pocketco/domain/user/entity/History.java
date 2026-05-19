@@ -41,6 +41,7 @@ public class History extends BaseEntity {
     @ColumnDefault("false")
     private boolean isSolved;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "ai_status", nullable = false)
     @ColumnDefault("'NOT_REQUESTED'")
