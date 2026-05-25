@@ -22,6 +22,10 @@ springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
 
+swagger:
+  server:
+    prod-url: ${SWAGGER_PROD_SERVER_URL}
+
 # fire base
 firebase:
   credentials-path: ${FIREBASE_FILE_PATH}
