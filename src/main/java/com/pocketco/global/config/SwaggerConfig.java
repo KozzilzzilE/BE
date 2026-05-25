@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -15,6 +16,9 @@ import java.util.ArrayList;
 
 @Configuration
 public class SwaggerConfig {
+
+    @Value("${swagger.server.prod-url}")
+    private String prodServerUrl;
 
     public SwaggerConfig(MappingJackson2HttpMessageConverter converter) {
         var supportedMediaTypes = new ArrayList<>(converter.getSupportedMediaTypes());
@@ -45,7 +49,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .addServersItem(new Server().url("http://localhost:8080")) // 추가적인 서버 URL 설정 가능
-                .addServersItem(new Server().url("http://15.164.136.153:8080")) // 배포 EC2 IP 추가
+                .addServersItem(new Server().url(prodServerUrl)) // 배포 EC2 IP 추가
                 .info(info)
                 .addSecurityItem(securityRequirement)
                 .components(components);
