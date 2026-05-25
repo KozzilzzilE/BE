@@ -9,6 +9,7 @@ public record MainScreenResponse(
         String nickname,
         Long languageId,
         String languageName,
+        String profileImgUrl,
         List<MainScreenCalenderDTO> totalSolvedDetails,
         Integer thisMonthSolvedCount
 ) { }
