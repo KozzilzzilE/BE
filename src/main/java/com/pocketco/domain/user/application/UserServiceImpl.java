@@ -57,10 +57,17 @@ public class UserServiceImpl implements UserService {
                 .toInstant();
         int monthSoledCount = historyRepository.countThisMonthSolved(userId, HistoryStatus.ACCEPTED, startUtc, endUtc);
 
+        String profileImageUrl = null;
+        PublicProfileImage profileImage = user.getProfileImage();
+        if (profileImage != null) {
+            profileImageUrl = fileStorageService.getUrl(profileImage.getImgUrl());
+        }
+
         return MainScreenResponse.builder()
                 .nickname(user.getNickname())
                 .languageId(user.getLanguage().getId())
                 .languageName(user.getLanguage().getName())
+                .profileImgUrl(profileImageUrl)
                 .totalSolvedDetails(dates)
                 .thisMonthSolvedCount(monthSoledCount)
                 .build();
@@ -103,7 +110,7 @@ public class UserServiceImpl implements UserService {
 
         return UserUpdateResponseDTO.builder()
                 .userId(user.getId())
-                .imgUrl(profileImageUrl)
+                .profileImgUrl(profileImageUrl)
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .language(user.getLanguage().getName())
@@ -128,7 +135,7 @@ public class UserServiceImpl implements UserService {
 
         // 3. DTO 조립
         return UserResponseDTO.MyPageResponse.builder()
-                .imgUrl(profileImageUrl)
+                .profileImgUrl(profileImageUrl)
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .language(user.getLanguage() != null ? user.getLanguage().getName() : "JAVA")

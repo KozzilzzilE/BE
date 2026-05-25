@@ -5,7 +5,7 @@ import lombok.Builder;
 @Builder
 public record UserUpdateResponseDTO(
         Long userId,
-        String imgUrl,
+        String profileImgUrl,
         String email,
         String nickname,
         String language
