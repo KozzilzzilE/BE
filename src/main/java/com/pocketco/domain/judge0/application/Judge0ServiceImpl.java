@@ -21,6 +21,7 @@ import com.pocketco.global.util.judge0.Judge0SubmitDispatcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.pocketco.domain.user.repository.UserCodeRepository;
+import org.springframework.core.io.buffer.DataBufferLimitException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pocketco.domain.judge0.dto.SubmissionResultResponse;
@@ -30,9 +31,9 @@ import com.pocketco.domain.language.entity.Language;
 import com.pocketco.domain.language.repository.LanguageRepository;
 import com.pocketco.domain.problem.repository.ProblemRepository;
 import com.pocketco.domain.problem.repository.TestCaseRepository;
+import com.pocketco.domain.language.exception.LanguageNotFoundException;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import com.pocketco.domain.language.exception.LanguageNotFoundException;
 
 
 import java.util.List;
@@ -156,6 +157,7 @@ public class Judge0ServiceImpl implements Judge0Service {
             return CodeRunResultResponse.builder()
                     .statusId(-1)
                     .status("토큰이 없습니다")
+                    .time(0.0)
                     .build();
         }
         try {
@@ -165,13 +167,24 @@ public class Judge0ServiceImpl implements Judge0Service {
                 return CodeRunResultResponse.builder()
                         .statusId(-1)
                         .status("응답이 없습니다")
+                        .time(0.0)
                         .build();
             }
             return Judge0Converter.toRunResultResponse(response);
         } catch (Exception e) {
+            if (isDataBufferLimitException(e)) {
+                return CodeRunResultResponse.builder()
+                        .statusId(8)
+                        .output("출력 크기가 너무 커서 결과를 표시할 수 없습니다.")
+                        .status("Output Limit Exceeded")
+                        .time(0.0)
+                        .build();
+            }
+            log.error("Judge0 조회 실패. token={}", token, e);
             return CodeRunResultResponse.builder()
                     .statusId(-1)
                     .status("Judge0 조회 실패")
+                    .time(0.0)
                     .build();
         }
     }
@@ -315,5 +328,15 @@ public class Judge0ServiceImpl implements Judge0Service {
         }
 
         return status;
+    }
+
+    private boolean isDataBufferLimitException(Throwable e) {
+        while (e != null) {
+            if (e instanceof DataBufferLimitException) {
+                return true;
+            }
+            e = e.getCause();
+        }
+        return false;
     }
 }
